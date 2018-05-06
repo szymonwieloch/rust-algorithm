@@ -1,6 +1,6 @@
-mod sort;
+pub mod sort;
 pub mod search;
-mod collections;
+pub mod collections;
 
 #[cfg(test)]
 mod tests {

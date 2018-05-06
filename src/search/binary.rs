@@ -1,31 +1,60 @@
 use std::cmp::Ordering;
 
-pub fn binary_asc<T>(arr: &[T], val: &T) -> Option<usize> where T: Ord {
-    let mut lo: isize = 0;
-    let mut hi: isize = arr.len() as isize -1;
-    while lo <= hi {
-        let mid = lo + (hi-lo)/2;
-        match unsafe{arr.get_unchecked(mid as usize)}.cmp(val) {
-            Ordering::Greater => hi = mid -1,
-            Ordering::Less => lo = mid+1,
-            Ordering::Equal => return Option::Some(mid as usize)
+macro_rules! binary {
+    ($arr:ident, $val:ident, $lower_hi:ident, $higher_lo:ident) =>{{
+         let mut lo: isize = 0;
+        let mut hi: isize = $arr.len() as isize -1;
+        while lo <= hi {
+            let mid = lo + (hi-lo)/2;
+            match unsafe{$arr.get_unchecked(mid as usize)}.cmp($val) {
+                Ordering::$lower_hi => hi = mid -1,
+                Ordering::$higher_lo => lo = mid+1,
+                Ordering::Equal => return Option::Some(mid as usize)
+            }
         }
-    }
-    Option::None
+        Option::None
+    }}
 }
 
+/**
+Performs binary search in a slice sorted in the ascending order.
+
+#Example
+```
+extern crate algorithm;
+use algorithm::search::binary_asc;
+
+fn main() {
+    let arr = [0, 3, 7, 8, 11, 13, 22];
+
+    assert_eq!(binary_asc(&arr, &11), Some(4));
+    assert_eq!(binary_asc(&arr, &12), None);
+}
+```
+*/
+pub fn binary_asc<T>(arr: &[T], val: &T) -> Option<usize> where T: Ord {
+    binary!(arr, val, Greater, Less)
+}
+
+
+/**
+Performs binary search in a slice sorted in the descending order.
+
+#Example
+```
+extern crate algorithm;
+use algorithm::search::binary_desc;
+
+fn main() {
+    let arr = [88, 77, 66, 55, 44, 33, 22, 11];
+
+    assert_eq!(binary_desc(&arr, &33), Some(5));
+    assert_eq!(binary_desc(&arr, &34), None);
+}
+```
+*/
 pub fn binary_desc<T>(arr: &[T], val: &T) -> Option<usize> where T: Ord {
-    let mut lo: isize = 0;
-    let mut hi: isize = arr.len() as isize -1;
-    while lo <= hi {
-        let mid = lo + (hi-lo)/2;
-        match unsafe{arr.get_unchecked(mid as usize)}.cmp(val) {
-            Ordering::Less => hi = mid -1,
-            Ordering::Greater => lo = mid+1,
-            Ordering::Equal => return Option::Some(mid as usize)
-        }
-    }
-    Option::None
+    binary!(arr, val, Less, Greater)
 }
 
 #[cfg(test)]
