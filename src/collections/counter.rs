@@ -5,6 +5,10 @@ use std::ops::{Deref, DerefMut, Add, AddAssign, Sub, SubAssign};
 use std::collections::HashMap;
 use std::collections::hash_map::RandomState;
 
+type IntoIter<T> = ::std::collections::hash_map::IntoIter<T, usize>;
+type Iter<'a, T> = ::std::collections::hash_map::Iter<'a, T, usize>;
+type IterMut<'a, T> = ::std::collections::hash_map::IterMut<'a, T, usize>;
+
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Counter<T, S = RandomState> where T: Hash + Eq, S: BuildHasher {
     //pub type Map = HashMap<T, usize, S>
@@ -61,6 +65,33 @@ impl<T, S> FromIterator<T> for Counter<T, S> where T: Hash + Eq, S: BuildHasher+
     }
 }
 
+impl <T, S> IntoIterator for Counter<T, S>  where T: Hash + Eq, S: BuildHasher {
+    type Item = (T, usize);
+    type IntoIter = IntoIter<T>;
+
+    fn into_iter(self) -> <Self as IntoIterator>::IntoIter {
+        self.counter.into_iter()
+    }
+}
+
+impl <'a, T, S> IntoIterator for &'a Counter<T, S>  where T: Hash + Eq, S: BuildHasher {
+    type Item = (&'a T,&'a usize);
+    type IntoIter = Iter<'a, T>;
+
+    fn into_iter(self) -> <Self as IntoIterator>::IntoIter {
+        self.counter.iter()
+    }
+}
+
+impl <'a, T, S> IntoIterator for &'a mut Counter<T, S>  where T: Hash + Eq, S: BuildHasher {
+    type Item = (&'a T,&'a mut usize);
+    type IntoIter = IterMut<'a, T>;
+
+    fn into_iter(self) -> <Self as IntoIterator>::IntoIter {
+        self.counter.iter_mut()
+    }
+}
+
 impl<T, S> Extend<T> for Counter<T, S> where T: Hash + Eq, S: BuildHasher {
     fn extend<I: IntoIterator<Item=T>>(&mut self, iter: I) {
         for key in iter{
@@ -91,14 +122,37 @@ impl<T, S> DerefMut for Counter<T, S> where T: Hash + Eq, S: BuildHasher{
         & mut self.counter
     }
 }
-/*
-impl<T> AddAssign for Counter<T> where T: Hash + Eq  {
-    fn add_assign(&mut self, rhs: Self) {
-        let iter = rhs.into_iter();
 
+impl<T, S> AddAssign for Counter<T, S> where T: Hash + Eq, S: BuildHasher{
+    fn add_assign(&mut self, rhs: Self) {
         for (key, val) in rhs.into_iter(){
-            *self.counter.entry(key).or_insert(0) += val;
+            * self.counter.entry(key).or_insert(0) += val;
         }
     }
 }
-*/
+
+impl<'a, T, S> AddAssign<&'a Counter<T, S>> for Counter<T, S> where T: Hash + Eq+Clone, S: BuildHasher{
+    fn add_assign(&mut self, rhs: &'a Self) {
+        for (ref key, &val) in rhs.iter(){
+            *self.counter.entry((*key).clone()).or_insert(0) += val;
+        }
+    }
+}
+
+impl<T, S> Add for  Counter<T, S> where T: Hash + Eq, S: BuildHasher {
+    type Output = Counter<T, S>;
+    fn add(mut self, rhs: Self) -> <Self as Add<Self>>::Output {
+        self += rhs;
+        self
+    }
+}
+
+impl<'a, T, S> Add<&'a Counter<T, S>> for  Counter<T, S> where T: Hash + Eq+Clone, S: BuildHasher {
+    type Output = Counter<T, S>;
+    fn add(mut self, rhs: &'a Self) -> <Self as Add<Self>>::Output {
+        for (ref key, val) in rhs.iter(){
+            *self.entry((*key).clone()).or_insert(0) += *val;
+        }
+        self
+    }
+}
