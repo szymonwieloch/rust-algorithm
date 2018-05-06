@@ -19,6 +19,8 @@ macro_rules! binary {
 /**
 Performs binary search in a slice sorted in the ascending order.
 
+Complexity: log(n)
+
 #Example
 ```
 extern crate algorithm;
@@ -39,6 +41,8 @@ pub fn binary_asc<T>(arr: &[T], val: &T) -> Option<usize> where T: Ord {
 
 /**
 Performs binary search in a slice sorted in the descending order.
+
+Complexity: log(n)
 
 #Example
 ```

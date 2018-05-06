@@ -1,3 +1,4 @@
+use std::iter::{Iterator, IntoIterator};
 
 /*
 To follow the DRY rule this macro is created.
@@ -6,11 +7,12 @@ Different versions differ only in a operator used for comparing values.
 */
 macro_rules! find_first {
     ($it: ident, $oper: tt) => { {
-        let mut prev = match $it.next() {
+        let mut it = $it.into_iter();
+        let mut prev = match it.next() {
             Option::None => return None,
             Option::Some(first) => first
         };
-        for (i, curr) in $it.enumerate() {
+        for (i, curr) in it.enumerate() {
             if curr $oper prev {
                 return Some(i+1);
             }
@@ -36,8 +38,8 @@ fn main() {
 }
 ```
 */
-pub fn first_desc<I, T>(mut it: I) -> Option<usize> where I: Iterator<Item=T>, T:PartialOrd {
-    find_first!(it, <)
+pub fn first_desc<I, T>(iter: I) -> Option<usize> where I: IntoIterator<Item=T>, T:PartialOrd {
+    find_first!(iter, <)
 }
 
 /**
@@ -56,8 +58,8 @@ fn main() {
 }
 ```
 */
-pub fn first_desc_weak<I, T>(mut it: I) -> Option<usize> where I: Iterator<Item=T>, T:PartialOrd {
-    find_first!(it, <=)
+pub fn first_desc_weak<I, T>(iter: I) -> Option<usize> where I: IntoIterator<Item=T>, T:PartialOrd {
+    find_first!(iter, <=)
 }
 
 /**
@@ -76,8 +78,8 @@ fn main() {
 }
 ```
 */
-pub fn first_asc_weak<I, T>(mut it: I) -> Option<usize> where I: Iterator<Item=T>, T:PartialOrd {
-    find_first!(it, >=)
+pub fn first_asc_weak<I, T>(iter: I) -> Option<usize> where I: IntoIterator<Item=T>, T:PartialOrd {
+    find_first!(iter, >=)
 }
 
 /**
@@ -96,8 +98,8 @@ fn main() {
 }
 ```
 */
-pub fn first_asc<I, T>(mut it: I) -> Option<usize> where I: Iterator<Item=T>, T:PartialOrd {
-    find_first!(it, >)
+pub fn first_asc<I, T>(iter: I) -> Option<usize> where I: IntoIterator<Item=T>, T:PartialOrd {
+    find_first!(iter, >)
 }
 
 

@@ -1,4 +1,4 @@
-use std::iter::Iterator;
+use std::iter::{Iterator, IntoIterator};
 
 /*
 To follow the DRY rule a macro is created here and then used in 4 versions of functions.
@@ -8,11 +8,12 @@ This is the best performing solution.
 macro_rules! check_sorted {
     ($it:ident, $cond:tt) => {
         {
-            let mut prev = match $it.next() {
+            let mut it = $it.into_iter();
+            let mut prev = match it.next() {
                 Option::None => return true,
                 Option::Some(first) => first
             };
-            for curr in $it {
+            for curr in it {
                 //println!("check {:?} {:?}", prev, curr);
                 if  curr $cond prev{
                     return false;
@@ -27,6 +28,8 @@ macro_rules! check_sorted {
 /**
 Checks if the provided collection is sorted in ascending order.
 
+Complexity: n
+
 #Example
 ```
 extern crate algorithm;
@@ -40,12 +43,14 @@ fn main() {
 }
 ```
 */
-pub fn is_sorted_asc<I, T>(mut it: I) -> bool where I: Iterator<Item=T>, T:PartialOrd{
-    check_sorted!(it, <=)
+pub fn is_sorted_asc<I, T>(iter: I) -> bool where I: IntoIterator<Item=T>, T:PartialOrd{
+    check_sorted!(iter, <=)
 }
 
 /**
 Checks if the provided collection is sorted in descending order.
+
+Complexity: n
 
 #Example
 ```
@@ -60,13 +65,16 @@ fn main() {
 }
 ```
 */
-pub fn is_sorted_desc<I, T>(mut it: I) -> bool where I: Iterator<Item=T>, T:PartialOrd{
-    check_sorted!(it, >=)
+pub fn is_sorted_desc<I, T>(iter: I) -> bool where I: IntoIterator<Item=T>, T:PartialOrd{
+    check_sorted!(iter, >=)
 }
 
 /**
-Checks if the provided collection is sorted in descending order using weak ordering
-(the next element can equal the previous one).
+Checks if the provided collection is sorted in the weakly descending order.
+
+Weakly ordering allows subsequent elements to be equal.
+
+Complexity: n
 
 #Example
 ```
@@ -81,13 +89,16 @@ fn main() {
 }
 ```
 */
-pub fn is_sorted_desc_weak<I, T>(mut it: I) -> bool where I: Iterator<Item=T>, T:PartialOrd{
-    check_sorted!(it, >)
+pub fn is_sorted_desc_weak<I, T>(iter: I) -> bool where I: IntoIterator<Item=T>, T:PartialOrd{
+    check_sorted!(iter, >)
 }
 
 /**
-Checks if the provided collection is sorted in ascending order using weak ordering
-(the next element can equal the previous one).
+Checks if the provided collection is sorted in the weakly ascending order.
+
+Weakly ordering allows subsequent elements to be equal.
+
+Complexity: n
 
 #Example
 ```
@@ -102,8 +113,8 @@ fn main() {
 }
 ```
 */
-pub fn is_sorted_asc_weak<I, T>(mut it: I) -> bool where I: Iterator<Item=T>, T:PartialOrd{
-    check_sorted!(it, <)
+pub fn is_sorted_asc_weak<I, T>(iter: I) -> bool where I: IntoIterator<Item=T>, T:PartialOrd{
+    check_sorted!(iter, <)
 }
 
 
