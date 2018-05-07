@@ -1,3 +1,4 @@
+extern crate fnv;
 pub mod sort;
 pub mod search;
 pub mod collections;

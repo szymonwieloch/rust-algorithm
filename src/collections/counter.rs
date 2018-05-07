@@ -4,6 +4,7 @@ use std::default::Default;
 use std::ops::{Deref, DerefMut, Add, AddAssign, Sub, SubAssign};
 use std::collections::HashMap;
 use std::collections::hash_map::RandomState;
+use std::collections::hash_map::Entry;
 
 type IntoIter<T> = ::std::collections::hash_map::IntoIter<T, usize>;
 type Iter<'a, T> = ::std::collections::hash_map::Iter<'a, T, usize>;
@@ -40,6 +41,24 @@ impl<T, S> Counter<T, S>  where T: Hash + Eq, S: BuildHasher
         Counter{
             counter: HashMap::with_capacity_and_hasher(capacity, hash_builder)
         }
+    }
+
+    pub fn from_hashmap(rhs: HashMap<T, usize, S>) -> Self {
+        Self{
+            counter: rhs
+        }
+    }
+
+    pub fn into_most_common(self) -> Vec<(T, usize)>{
+        let mut res: Vec<(T, usize)> = Vec::from_iter(self.counter.into_iter());
+        res.sort_unstable_by_key(|&(ref _key, val)| val);
+        res
+    }
+
+    pub fn most_common(&self) -> Vec<(T, usize)> where T: Clone{
+        let mut res: Vec<(T, usize)> = self.counter.iter().map(|(key, &val)|((*key).clone(), val)).collect();
+        res.sort_unstable_by_key(|&(ref _key, val)| val);
+        res
     }
 }
 
@@ -123,36 +142,122 @@ impl<T, S> DerefMut for Counter<T, S> where T: Hash + Eq, S: BuildHasher{
     }
 }
 
-impl<T, S> AddAssign for Counter<T, S> where T: Hash + Eq, S: BuildHasher{
-    fn add_assign(&mut self, rhs: Self) {
+impl<T, S1, S2> AddAssign<Counter<T, S1>> for Counter<T, S2> where T: Hash + Eq, S1: BuildHasher, S2: BuildHasher{
+    fn add_assign(&mut self, rhs: Counter<T, S1>) {
         for (key, val) in rhs.into_iter(){
             * self.counter.entry(key).or_insert(0) += val;
         }
     }
 }
 
-impl<'a, T, S> AddAssign<&'a Counter<T, S>> for Counter<T, S> where T: Hash + Eq+Clone, S: BuildHasher{
-    fn add_assign(&mut self, rhs: &'a Self) {
+impl<'a, T, S1, S2> AddAssign<&'a Counter<T, S1>> for Counter<T, S2> where T: Hash + Eq+Clone, S1: BuildHasher, S2: BuildHasher{
+    fn add_assign(&mut self, rhs: &'a Counter<T, S1>) {
         for (ref key, &val) in rhs.iter(){
             *self.counter.entry((*key).clone()).or_insert(0) += val;
         }
     }
 }
 
-impl<T, S> Add for  Counter<T, S> where T: Hash + Eq, S: BuildHasher {
-    type Output = Counter<T, S>;
-    fn add(mut self, rhs: Self) -> <Self as Add<Self>>::Output {
+impl<T, S1, S2> Add<Counter<T, S1>> for  Counter<T, S2> where T: Hash + Eq, S1: BuildHasher,  S2: BuildHasher {
+    type Output = Counter<T, S2>;
+    fn add(mut self, rhs: Counter<T, S1>) -> <Self as Add<Self>>::Output {
         self += rhs;
         self
     }
 }
 
-impl<'a, T, S> Add<&'a Counter<T, S>> for  Counter<T, S> where T: Hash + Eq+Clone, S: BuildHasher {
-    type Output = Counter<T, S>;
-    fn add(mut self, rhs: &'a Self) -> <Self as Add<Self>>::Output {
+impl<'a, T, S1, S2> Add<&'a Counter<T, S1>> for  Counter<T, S2> where T: Hash + Eq+Clone, S1: BuildHasher, S2: BuildHasher {
+    type Output = Counter<T, S2>;
+    fn add(mut self, rhs: &'a Counter<T, S1>) -> <Self as Add<Self>>::Output {
         for (ref key, val) in rhs.iter(){
             *self.entry((*key).clone()).or_insert(0) += *val;
         }
         self
+    }
+}
+
+impl<T, S1, S2> SubAssign<Counter<T, S1>> for Counter<T, S2> where T: Hash + Eq, S1: BuildHasher, S2: BuildHasher{
+    fn sub_assign(&mut self, rhs: Counter<T, S1>) {
+        for (key, val) in rhs.into_iter(){
+            match self.counter.entry(key) {
+                Entry::Occupied(mut entry) =>{
+                    if entry.get() <= &val {
+                        entry.remove();
+                    } else {
+                        let new_val = entry.get()-val;
+                        entry.insert(new_val);
+                    }
+                },
+                Entry::Vacant(..) => {
+                    //do nothing - discard
+                }
+            }
+        }
+    }
+}
+
+impl<'a, T, S1, S2> SubAssign<&'a Counter<T, S1>> for Counter<T, S2> where T: Hash + Eq+Clone, S1: BuildHasher, S2: BuildHasher{
+    fn sub_assign(&mut self, rhs: & 'a Counter<T, S1>) {
+        for (key, val) in rhs.into_iter(){
+            match self.counter.entry(key.clone()) {
+                Entry::Occupied(mut entry) =>{
+                    if entry.get() <= &val {
+                        entry.remove();
+                    } else {
+                        let new_val = entry.get()-val;
+                        entry.insert(new_val);
+                    }
+                },
+                Entry::Vacant(..) => {
+                    //do nothing - discard
+                }
+            }
+        }
+    }
+}
+
+impl<T, S1, S2> Sub<Counter<T, S1>> for  Counter<T, S2> where T: Hash + Eq, S1: BuildHasher,  S2: BuildHasher {
+    type Output = Counter<T, S2>;
+    fn sub(mut self, rhs: Counter<T, S1>) -> <Self as Sub<Self>>::Output {
+        self -= rhs;
+        self
+    }
+}
+
+impl<'a, T, S1, S2> Sub<&'a Counter<T, S1>> for  Counter<T, S2> where T: Hash + Eq+Clone, S1: BuildHasher, S2: BuildHasher {
+    type Output = Counter<T, S2>;
+    fn sub(mut self, rhs: &'a Counter<T, S1>) -> <Self as Sub<Self>>::Output {
+        for (ref key, val) in rhs.iter(){
+            match self.counter.entry((*key).clone()) {
+                Entry::Occupied(mut entry) =>{
+                    if entry.get() <= &val {
+                        entry.remove();
+                    } else {
+                        let new_val = entry.get()-val;
+                        entry.insert(new_val);
+                    }
+                },
+                Entry::Vacant(..) => {
+                    //do nothing - discard
+                }
+            }
+        }
+        self
+    }
+}
+
+impl <T, S1, S2> From<HashMap<T, usize, S1>> for Counter<T, S2> where T: Hash + Eq, S1: BuildHasher, S2: BuildHasher+Default {
+    fn from(rhs: HashMap<T, usize, S1>) -> Self {
+        Counter{
+            counter: HashMap::from_iter(rhs.into_iter())
+        }
+    }
+}
+
+impl <'a, T, S1, S2> From<&'a HashMap<T, usize, S1>> for Counter<T, S2> where T: Hash + Eq+Clone, S1: BuildHasher, S2: BuildHasher+Default {
+    fn from(rhs: &'a HashMap<T, usize, S1>) -> Self {
+        Counter{
+            counter: HashMap::from_iter(rhs.iter().map(|(ref key, &val)| ((*key).clone(), val)))
+        }
     }
 }
