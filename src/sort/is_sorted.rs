@@ -14,7 +14,6 @@ macro_rules! check_sorted {
                 Option::Some(first) => first
             };
             for curr in it {
-                //println!("check {:?} {:?}", prev, curr);
                 if  curr $cond prev{
                     return false;
                 }

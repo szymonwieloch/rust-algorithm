@@ -18,10 +18,24 @@ fn fill_arr<T>(arr: & mut [T], elems: Vec<(T, usize)>) where T: Clone {
 /**
 Sorts elements using counting sort in the ascending order.
 
-Processing complexity: O(n + k*log(k))
-Memory complexity: O(k)
+- Processing complexity: O(n + k*log(k))
+- Memory complexity: O(k)
 
 where k - number of unique elements in the provided slice.
+
+# Example
+
+```
+extern crate algorithm;
+use algorithm::sort::counting_sort_asc;
+
+fn main() {
+    let mut arr = ['a', 'b', 'c', 'a', 'b', 'c', 'c', 'c'];
+    counting_sort_asc(&mut arr);
+    let expected = ['a', 'a', 'b', 'b', 'c', 'c', 'c', 'c'];
+    assert_eq!(arr, expected);
+}
+```
 */
 pub fn counting_sort_asc<T>( arr: & mut [T]) where T:Hash+Ord+Eq+Clone{
     let counter: FastCounter<T> = FastCounter::from_iter(arr.iter().map(|ref e| e.clone()));
@@ -34,10 +48,24 @@ pub fn counting_sort_asc<T>( arr: & mut [T]) where T:Hash+Ord+Eq+Clone{
 /**
 Sorts elements using counting sort in the descending order.
 
-Processing complexity: O(n + k*log(k))
-Memory complexity: O(k)
+- Processing complexity: O(n + k*log(k))
+- Memory complexity: O(k)
 
 where k - number of unique elements in the provided slice.
+
+# Example
+
+```
+extern crate algorithm;
+use algorithm::sort::counting_sort_desc;
+
+fn main() {
+    let mut arr = ['c','a', 'b', 'c', 'd', 'a', 'b', 'c', 'c', 'c'];
+    counting_sort_desc(&mut arr);
+    let expected = ['d', 'c', 'c', 'c', 'c', 'c', 'b', 'b', 'a', 'a'];
+    assert_eq!(arr, expected);
+}
+```
 */
 pub fn counting_sort_desc<T>( arr: & mut [T])where T:Hash+Ord+Eq+Clone{
     let counter: FastCounter<T> = FastCounter::from_iter(arr.iter().map(|ref e| e.clone()));

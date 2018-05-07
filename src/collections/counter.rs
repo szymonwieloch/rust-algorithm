@@ -17,7 +17,13 @@ Counts recurring elements from a provided iterable.
 This implementation was inspired by the Python Counter class:
 <https://docs.python.org/3.5/library/collections.html#collections.Counter>
 
-#Example
+- Initialization complexity: O(n)
+- Memory complexity: O(k)
+
+where k - number of unique elements in the initializing series.
+
+# Example
+
 ```
 extern crate algorithm;
 use algorithm::collections::Counter;
