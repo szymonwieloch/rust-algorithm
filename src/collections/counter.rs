@@ -10,6 +10,36 @@ type IntoIter<T> = ::std::collections::hash_map::IntoIter<T, usize>;
 type Iter<'a, T> = ::std::collections::hash_map::Iter<'a, T, usize>;
 type IterMut<'a, T> = ::std::collections::hash_map::IterMut<'a, T, usize>;
 
+
+/**
+Counts recurring elements from a provided iterable.
+
+This implementation was inspired by the Python Counter class:
+<https://docs.python.org/3.5/library/collections.html#collections.Counter>
+
+#Example
+```
+extern crate algorithm;
+use algorithm::collections::Counter;
+use std::iter::FromIterator;
+
+fn main(){
+    //The basic functionality is counting elements
+    let mut counter: Counter<char> = Counter::from_iter("Lorem ipsum dolor sit amet enim.".chars());
+
+    //Counter supports HashMap-like API:
+    assert_eq!(counter.get(&'o'), Some(&(3 as usize)));
+
+    //It is also possible to find the most frequent elements:
+    assert_eq!(counter.most_common().get(0), Some(&(' ', 5 as usize)));
+
+    //Finally, Counter supports adding and subtraction
+     let other: Counter<char> = Counter::from_iter("Etiam ullamcorper.".chars());
+     counter += other;
+     assert_eq!(counter.get(&'o'), Some(&(4 as usize)));
+}
+```
+*/
 #[derive(Clone, PartialEq, Eq, Debug)]
 pub struct Counter<T, S = RandomState> where T: Hash + Eq, S: BuildHasher {
     //pub type Map = HashMap<T, usize, S>
@@ -18,53 +48,88 @@ pub struct Counter<T, S = RandomState> where T: Hash + Eq, S: BuildHasher {
 
 impl<T, S> Counter<T, S>  where T: Hash + Eq, S: BuildHasher
 {
-    /// Create a new, empty `Counter`
+    /// Creates a new, empty `Counter`.
     pub fn new() -> Counter<T, RandomState> {
         Counter{
             counter: HashMap::new()
         }
     }
 
+    /**
+    Creates an empty HashMap with the specified capacity.
+
+    The Counter will be able to hold at least capacity elements without reallocating.
+    If capacity is 0, the Counter will not allocate.
+    */
     pub fn with_capacity(capacity: usize) -> Counter<T, RandomState>  {
         Counter{
             counter: HashMap::with_capacity(capacity)
         }
     }
 
+    /**
+    Creates an empty HashMap which will use the given hash builder to hash keys.
+
+    The created map has the default initial capacity.
+    */
     pub fn with_hasher(hash_builder: S) -> Counter<T, S> {
         Counter{
             counter: HashMap::with_hasher(hash_builder)
         }
     }
 
+    /**
+    Creates an empty Counter with the specified capacity, using hash_builder to hash the keys.
+
+    The Counter will be able to hold at least capacity elements without reallocating.
+    If capacity is 0, the Counter will not allocate.
+    */
     pub fn with_capacity_and_hasher(capacity: usize, hash_builder: S,  ) -> Counter<T, S>{
         Counter{
             counter: HashMap::with_capacity_and_hasher(capacity, hash_builder)
         }
     }
 
+    /**
+    Creates Counter from the provided HashMap with the same BuildHasher type.
+
+    This function is needed because Rust does not support template specialization
+    and the generic From::from() method uses a suboptimal algorithm.
+    */
     pub fn from_hashmap(rhs: HashMap<T, usize, S>) -> Self {
         Self{
             counter: rhs
         }
     }
 
+    /**
+    Returns a Vec with sorted tuples - a element plus its count.
+
+    The collection starts with the most common elements.
+    Elements with equal counts are ordered arbitrarily
+    */
     pub fn into_most_common(self) -> Vec<(T, usize)>{
         let mut res: Vec<(T, usize)> = Vec::from_iter(self.counter.into_iter());
-        res.sort_unstable_by_key(|&(ref _key, val)| val);
+        res.sort_unstable_by_key(|&(ref _key, val)| ::std::usize::MAX - val);
         res
     }
 
+    /**
+    Returns a Vec with sorted tuples - a element plus its count.
+
+    The collection starts with the most common elements.
+    Elements with equal counts are ordered arbitrarily
+    */
     pub fn most_common(&self) -> Vec<(T, usize)> where T: Clone{
         let mut res: Vec<(T, usize)> = self.counter.iter().map(|(key, &val)|((*key).clone(), val)).collect();
-        res.sort_unstable_by_key(|&(ref _key, val)| val);
+        res.sort_unstable_by_key(|&(ref _key, val)| ::std::usize::MAX - val);
         res
     }
 }
 
 impl<T, S> Default for Counter<T, S> where T: Hash + Eq, S: BuildHasher+Default {
 
-    /// Create a new, empty `Counter`
+    /// Creates a new, empty `Counter`.
     fn default() -> Self {
         Counter{
             counter: HashMap::default()
@@ -73,10 +138,26 @@ impl<T, S> Default for Counter<T, S> where T: Hash + Eq, S: BuildHasher+Default 
 }
 
 impl<T, S> FromIterator<T> for Counter<T, S> where T: Hash + Eq, S: BuildHasher+Default{
+
+    ///Creates Counter from provided iterator.
     fn from_iter<I: IntoIterator<Item=T>>(iter: I) -> Self {
         let mut map = HashMap::default();
         for key in iter{
             *map.entry(key).or_insert(0) +=1;
+        }
+        Counter{
+            counter: map
+        }
+    }
+}
+
+impl<'a, T, S> FromIterator<&'a T> for Counter<T, S> where T: Hash + Eq+Clone, S: BuildHasher+Default{
+
+    ///Creates Counter from provided iterator.
+    fn from_iter<I: IntoIterator<Item=&'a T>>(iter: I) -> Self {
+        let mut map = HashMap::default();
+        for key in iter.into_iter().map(|ref key| key.clone()){
+            *map.entry(key.clone()).or_insert(0) +=1;
         }
         Counter{
             counter: map
@@ -112,6 +193,7 @@ impl <'a, T, S> IntoIterator for &'a mut Counter<T, S>  where T: Hash + Eq, S: B
 }
 
 impl<T, S> Extend<T> for Counter<T, S> where T: Hash + Eq, S: BuildHasher {
+    ///Extends Counter with provided interator.
     fn extend<I: IntoIterator<Item=T>>(&mut self, iter: I) {
         for key in iter{
             *self.counter.entry(key).or_insert(0) +=1;
@@ -121,6 +203,7 @@ impl<T, S> Extend<T> for Counter<T, S> where T: Hash + Eq, S: BuildHasher {
 
 
 impl<'a, T, S> Extend<&'a T> for Counter<T, S> where T: Hash + Eq+Copy, S: BuildHasher {
+    ///Extends Counter with provided interator.
     fn extend<I: IntoIterator<Item=&'a T>>(&mut self, iter: I) {
         for key in iter.into_iter().map(|&key| key){
             *self.counter.entry(key).or_insert(0) +=1;
@@ -247,6 +330,14 @@ impl<'a, T, S1, S2> Sub<&'a Counter<T, S1>> for  Counter<T, S2> where T: Hash + 
 }
 
 impl <T, S1, S2> From<HashMap<T, usize, S1>> for Counter<T, S2> where T: Hash + Eq, S1: BuildHasher, S2: BuildHasher+Default {
+
+    /**
+    Creates Counter from provided HashMap.
+
+    Please note that this is the function for generic conversion.
+    The ```from_hashmap()``` function is more optimal if Counter and HashMap use the same
+    BuildHasher.
+    */
     fn from(rhs: HashMap<T, usize, S1>) -> Self {
         Counter{
             counter: HashMap::from_iter(rhs.into_iter())

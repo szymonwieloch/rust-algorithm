@@ -28,7 +28,8 @@ macro_rules! check_sorted {
 /**
 Checks if the provided collection is sorted in ascending order.
 
-Complexity: n
+Processing complexity: O(n)
+Memory complexity: O(1)
 
 #Example
 ```
@@ -50,7 +51,8 @@ pub fn is_sorted_asc<I, T>(iter: I) -> bool where I: IntoIterator<Item=T>, T:Par
 /**
 Checks if the provided collection is sorted in descending order.
 
-Complexity: n
+Processing complexity: O(n)
+Memory complexity: O(1)
 
 #Example
 ```
@@ -74,7 +76,8 @@ Checks if the provided collection is sorted in the weakly descending order.
 
 Weakly ordering allows subsequent elements to be equal.
 
-Complexity: n
+Processing complexity: O(n)
+Memory complexity: O(1)
 
 #Example
 ```
@@ -98,7 +101,8 @@ Checks if the provided collection is sorted in the weakly ascending order.
 
 Weakly ordering allows subsequent elements to be equal.
 
-Complexity: n
+Processing complexity: O(n)
+Memory complexity: O(1)
 
 #Example
 ```
