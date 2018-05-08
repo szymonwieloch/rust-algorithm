@@ -3,13 +3,6 @@ use std::default::Default;
 use std::ops::{Sub, Add, AddAssign};
 
 
-#[derive(Clone, PartialEq, Eq, Debug)]
-pub struct ConsecutiveSums<T> where T: Default + Add + Sub + AddAssign<T> {
-    sums: Vec<T>,
-    current_sum: T
-}
-
-
 /**
 Quickly calculates sums of consecutive elements in a provided series.
 
@@ -17,6 +10,8 @@ Normally calculating consecutive sums of an ordered collection has O(n) complexi
 Performing k queries has log(n*k) complexity.
 But ConsecutiveSums requires only log(n) for the initial calculations and then it can perform
 queries in O(1) time. Therefore performing k queries has only log(n+k) complexity.
+
+# Complexity
 
 - Initialization complexity: O(n)
 - Query complexity: O(1)
@@ -37,9 +32,17 @@ fn main(){
 }
 ```
 */
+#[derive(Clone, PartialEq, Eq, Debug)]
+pub struct ConsecutiveSums<T> where T: Default + Add + Sub + AddAssign<T> {
+    sums: Vec<T>,
+    current_sum: T
+}
+
 impl<T> ConsecutiveSums<T> where  T: Default + Clone + Add<Output=T> + Sub<Output=T> + AddAssign<T> {
     /**
     Calculates sum of all elements between indices 'from' and 'to'.
+
+    # Complexity
 
     - Processing complexity: O(1)
     - Memory complexity: O(1)

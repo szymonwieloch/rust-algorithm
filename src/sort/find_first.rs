@@ -25,8 +25,10 @@ macro_rules! find_first {
 /**
 In a weakly ascending collection it finds index of the first element that is strictly descending.
 
-Processing complexity: O(n)
-Memory complexity: O(1)
+# Complexity
+
+- Processing complexity: O(n)
+- Memory complexity: O(1)
 
 #Example
 ```
@@ -48,8 +50,10 @@ pub fn first_desc<I, T>(iter: I) -> Option<usize> where I: IntoIterator<Item=T>,
 /**
 In a strictly ascending collection it finds index of the first element that is weakly descending.
 
-Processing complexity: O(n)
-Memory complexity: O(1)
+# Complexity
+
+- Processing complexity: O(n)
+- Memory complexity: O(1)
 
 #Example
 ```
@@ -71,8 +75,10 @@ pub fn first_desc_weak<I, T>(iter: I) -> Option<usize> where I: IntoIterator<Ite
 /**
 In a weakly descending collection it finds index of the first element that is strictly ascending.
 
-Processing complexity: O(n)
-Memory complexity: O(1)
+# Complexity
+
+- Processing complexity: O(n)
+- Memory complexity: O(1)
 
 #Example
 ```
@@ -94,8 +100,10 @@ pub fn first_asc_weak<I, T>(iter: I) -> Option<usize> where I: IntoIterator<Item
 /**
 In a strictly descending collection it finds index of the first element that is weakly ascending.
 
-Processing complexity: O(n)
-Memory complexity: O(1)
+# Complexity
+
+- Processing complexity: O(n)
+- Memory complexity: O(1)
 
 #Example
 ```

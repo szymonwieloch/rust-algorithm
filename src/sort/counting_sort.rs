@@ -18,6 +18,8 @@ fn fill_arr<T>(arr: & mut [T], elems: Vec<(T, usize)>) where T: Clone {
 /**
 Sorts elements using counting sort in the ascending order.
 
+# Complexity
+
 - Processing complexity: O(n + k*log(k))
 - Memory complexity: O(k)
 
@@ -47,6 +49,8 @@ pub fn counting_sort_asc<T>( arr: & mut [T]) where T:Hash+Ord+Eq+Clone{
 
 /**
 Sorts elements using counting sort in the descending order.
+
+# Complexity
 
 - Processing complexity: O(n + k*log(k))
 - Memory complexity: O(k)
