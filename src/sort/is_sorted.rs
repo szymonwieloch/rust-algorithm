@@ -21,14 +21,14 @@ fn main() {
 }
 ```
 */
-pub fn is_sorted_by<'a, I, T, F>(iter: I, mut is_unordered:F) -> bool where I: IntoIterator<Item=&'a T>, T:'a , F: FnMut(&T, &T)->bool{
+pub fn is_sorted_by<'a, I, T, F>(iter: I, mut is_ordered:F) -> bool where I: IntoIterator<Item=&'a T>, T:'a , F: FnMut(&T, &T)->bool{
     let mut it = iter.into_iter();
     let mut prev = match it.next() {
         Option::None => return true,
         Option::Some(first) => first
     };
     for curr in it {
-        if  is_unordered(&curr, &prev){
+        if  ! is_ordered(&prev, &curr){
             return false;
         }
         prev = curr;
@@ -58,7 +58,7 @@ fn main() {
 ```
 */
 pub fn is_sorted_asc<'a, I, T>(iter: I) -> bool where I: IntoIterator<Item=&'a T>, T:'a+PartialOrd{
-    is_sorted_by(iter, |ref a, ref b| a<=b)
+    is_sorted_by(iter, |ref a, ref b| a<b)
 }
 
 /**
@@ -83,7 +83,7 @@ fn main() {
 ```
 */
 pub fn is_sorted_desc<'a, I, T>(iter: I) -> bool where I: IntoIterator<Item=&'a T>, T:'a+PartialOrd{
-    is_sorted_by(iter, |ref a, ref b| a>=b)
+    is_sorted_by(iter, |ref a, ref b| a>b)
 }
 
 /**
@@ -110,7 +110,7 @@ fn main() {
 ```
 */
 pub fn is_sorted_desc_weak<'a, I, T>(iter: I) -> bool where I: IntoIterator<Item=&'a T>, T:'a+PartialOrd{
-    is_sorted_by(iter, |ref a, ref b| a>b)
+    is_sorted_by(iter, |ref a, ref b| a>=b)
 }
 
 /**
@@ -137,7 +137,7 @@ fn main() {
 ```
 */
 pub fn is_sorted_asc_weak<'a, I, T>(iter: I) -> bool where I: IntoIterator<Item=&'a T>, T:'a+PartialOrd{
-    is_sorted_by(iter, |ref a, ref b| a<b)
+    is_sorted_by(iter, |ref a, ref b| a<=b)
 }
 
 
@@ -148,120 +148,138 @@ mod tests {
     #[test]
     fn increase_empty() {
         let arr :[i32;0] = [];
-        assert!(is_sorted_asc(arr.iter()));
+        assert!(is_sorted_asc(&arr));
     }
 
     #[test]
     fn increase_single() {
         let arr = [1];
-        assert!(is_sorted_asc(arr.iter()));
+        assert!(is_sorted_asc(&arr));
     }
 
     #[test]
     fn increase_true() {
         let arr = [1, 4, 6, 10];
-        assert!(is_sorted_asc(arr.iter()));
+        assert!(is_sorted_asc(&arr));
     }
 
     #[test]
     fn increase_false() {
         let arr = [1, 4, 6, 5];
-        assert!(!is_sorted_asc(arr.iter()));
+        assert!(!is_sorted_asc(&arr));
     }
 
     #[test]
     fn increase_equal() {
         let arr = [1, 4, 6, 6, 10];
-        assert!(!is_sorted_asc(arr.iter()));
+        assert!(!is_sorted_asc(&arr));
     }
 
     #[test]
     fn decrease_empty() {
         let arr :[i32;0] = [];
-        assert!(is_sorted_desc(arr.iter()));
+        assert!(is_sorted_desc(&arr));
     }
 
     #[test]
     fn decrease_single() {
         let arr = [1];
-        assert!(is_sorted_desc(arr.iter()));
+        assert!(is_sorted_desc(&arr));
     }
 
     #[test]
     fn decrease_true() {
         let arr = [55, 44, 33, 22, 11];
-        assert!(is_sorted_desc(arr.iter()));
+        assert!(is_sorted_desc(&arr));
     }
 
     #[test]
     fn decrease_false() {
         let arr = [1, 4, 6, 5];
-        assert!(!is_sorted_desc(arr.iter()));
+        assert!(!is_sorted_desc(&arr));
     }
 
     #[test]
     fn decrease_equal() {
         let arr = [19, 9, 6, 6, 1];
-        assert!(!is_sorted_desc(arr.iter()));
+        assert!(!is_sorted_desc(&arr));
     }
 
     #[test]
     fn no_increase_empty() {
         let arr :[i32;0] = [];
-        assert!(is_sorted_desc_weak(arr.iter()));
+        assert!(is_sorted_desc_weak(&arr));
     }
 
     #[test]
     fn no_increase_single() {
         let arr = [1];
-        assert!(is_sorted_desc_weak(arr.iter()));
+        assert!(is_sorted_desc_weak(&arr));
     }
 
     #[test]
     fn no_increase_true() {
         let arr = [44, 33, 22, 11, 0];
-        assert!(is_sorted_desc_weak(arr.iter()));
+        assert!(is_sorted_desc_weak(&arr));
     }
 
     #[test]
     fn no_increase_false() {
         let arr = [1, 4, 6, 5];
-        assert!(!is_sorted_desc_weak(arr.iter()));
+        assert!(!is_sorted_desc_weak(&arr));
     }
 
     #[test]
     fn no_increase_equal() {
         let arr = [33, 23, 23, 5, 4, 4, 1];
-        assert!(is_sorted_desc_weak(arr.iter()));
+        assert!(is_sorted_desc_weak(&arr));
     }
 
     #[test]
     fn no_decrease_empty() {
         let arr :[i32;0] = [];
-        assert!(is_sorted_asc_weak(arr.iter()));
+        assert!(is_sorted_asc_weak(&arr));
     }
 
     #[test]
     fn no_decrease_single() {
         let arr = [1];
-        assert!(is_sorted_asc_weak(arr.iter()));
+        assert!(is_sorted_asc_weak(&arr));
     }
 
     #[test]
     fn no_decrease_true() {
         let arr = [1, 6, 9, 10];
-        assert!(is_sorted_asc_weak(arr.iter()));
+        assert!(is_sorted_asc_weak(&arr));
     }
 
     #[test]
     fn no_decrease_false() {
         let arr = [1, 4, 6, 5];
-        assert!(!is_sorted_asc_weak(arr.iter()));
+        assert!(!is_sorted_asc_weak(&arr));
     }
 
     #[test]
     fn no_decrease_equal() {
         let arr = [4, 6, 8, 8, 9, 10, 10];
-        assert!(is_sorted_asc_weak(arr.iter()));
+        assert!(is_sorted_asc_weak(&arr));
+    }
+
+    #[test]
+    fn nan(){
+        let arr = [1.0, 2.0, ::std::f64::NAN];
+        assert!(!is_sorted_asc(&arr))
+    }
+
+    #[test]
+    fn inf_pos() {
+        let arr = [1.0, 2.0, ::std::f64::INFINITY];
+        assert!(is_sorted_asc(&arr))
+    }
+
+    #[test]
+    fn inf_neg() {
+        let arr = [ ::std::f64::NEG_INFINITY, 1.0, 2.0];
+        assert!(is_sorted_asc(&arr))
     }
 }
