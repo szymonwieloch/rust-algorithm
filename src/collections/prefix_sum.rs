@@ -1,7 +1,6 @@
-use std::iter::{FromIterator, Extend};
+use std::iter::{Extend, FromIterator};
 use std::default::Default;
-use std::ops::{Sub, Add, AddAssign};
-
+use std::ops::{Add, AddAssign, Sub};
 
 /**
 Quickly calculates sums of consecutive elements in a provided series.
@@ -35,12 +34,18 @@ fn main(){
 ```
 */
 #[derive(Clone, PartialEq, Eq, Debug)]
-pub struct PrefixSum<T> where T: Default + Add + Sub + AddAssign<T> {
+pub struct PrefixSum<T>
+where
+    T: Default + Add + Sub + AddAssign<T>,
+{
     sums: Vec<T>,
-    current_sum: T
+    current_sum: T,
 }
 
-impl<T> PrefixSum<T> where  T: Default + Clone + Add<Output=T> + Sub<Output=T> + AddAssign<T> {
+impl<T> PrefixSum<T>
+where
+    T: Default + Clone + Add<Output = T> + Sub<Output = T> + AddAssign<T>,
+{
     /**
     Calculates sum of all elements between indices 'from' and 'to'.
 
@@ -58,62 +63,72 @@ impl<T> PrefixSum<T> where  T: Default + Clone + Add<Output=T> + Sub<Output=T> +
 
     ///Creates a new instance of PrefixSum.
     pub fn new() -> Self {
-        Self{
+        Self {
             sums: vec![T::default()],
-            current_sum: T::default()
+            current_sum: T::default(),
         }
     }
 }
 
-impl<T> Extend<T> for PrefixSum<T> where  T: Default + Clone + Add<Output=T> + Sub<Output=T> + AddAssign<T> {
-    fn extend<I: IntoIterator<Item=T>>(&mut self, iter: I) {
-        for i in iter{
+impl<T> Extend<T> for PrefixSum<T>
+where
+    T: Default + Clone + Add<Output = T> + Sub<Output = T> + AddAssign<T>,
+{
+    fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
+        for i in iter {
             self.current_sum += i;
             self.sums.push(self.current_sum.clone())
         }
     }
 }
 
-impl<'a, T> Extend<&'a T> for PrefixSum<T> where  T: Default + Clone + Add<Output=T> + Sub<Output=T> + AddAssign<T> {
-    fn extend<I: IntoIterator<Item=&'a T>>(&mut self, iter: I) {
-        for i in iter.into_iter().map(|e|e.clone()) {
+impl<'a, T> Extend<&'a T> for PrefixSum<T>
+where
+    T: Default + Clone + Add<Output = T> + Sub<Output = T> + AddAssign<T>,
+{
+    fn extend<I: IntoIterator<Item = &'a T>>(&mut self, iter: I) {
+        for i in iter.into_iter().map(|e| e.clone()) {
             self.current_sum += i;
             self.sums.push(self.current_sum.clone());
         }
     }
 }
 
-impl<T> FromIterator<T> for PrefixSum<T> where  T: Default + Clone + Add<Output=T> + Sub<Output=T> + AddAssign<T>  {
-    fn from_iter<I: IntoIterator<Item=T>>(iter: I) -> Self {
+impl<T> FromIterator<T> for PrefixSum<T>
+where
+    T: Default + Clone + Add<Output = T> + Sub<Output = T> + AddAssign<T>,
+{
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
         let mut current_sum: T = T::default();
-        let mut sums : Vec<T> = vec![T::default()];
-        for i in iter.into_iter(){
+        let mut sums: Vec<T> = vec![T::default()];
+        for i in iter.into_iter() {
             current_sum += i;
             sums.push(current_sum.clone());
         }
-        Self{
-            current_sum, sums
-        }
+        Self { current_sum, sums }
     }
 }
 
-impl<'a, T> FromIterator<&'a T> for PrefixSum<T> where  T: Default + Clone + Add<Output=T> + Sub<Output=T> + AddAssign<T> {
-    fn from_iter<I: IntoIterator<Item=&'a T>>(iter: I) -> Self {
+impl<'a, T> FromIterator<&'a T> for PrefixSum<T>
+where
+    T: Default + Clone + Add<Output = T> + Sub<Output = T> + AddAssign<T>,
+{
+    fn from_iter<I: IntoIterator<Item = &'a T>>(iter: I) -> Self {
         let mut current_sum: T = T::default();
-        let mut sums : Vec<T> = vec![T::default()];
-        for i in iter.into_iter().map(|ref e|(*e).clone()){
+        let mut sums: Vec<T> = vec![T::default()];
+        for i in iter.into_iter().map(|ref e| (*e).clone()) {
             current_sum += i;
             sums.push(current_sum.clone());
         }
-        Self{
-            current_sum, sums
-        }
+        Self { current_sum, sums }
     }
 }
 
-impl<T> Default for PrefixSum<T> where  T: Default + Clone + Add<Output=T> + Sub<Output=T> + AddAssign<T> {
+impl<T> Default for PrefixSum<T>
+where
+    T: Default + Clone + Add<Output = T> + Sub<Output = T> + AddAssign<T>,
+{
     fn default() -> Self {
         Self::new()
     }
 }
-

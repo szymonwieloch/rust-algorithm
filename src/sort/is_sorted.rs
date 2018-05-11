@@ -1,4 +1,4 @@
-use std::iter::{Iterator, IntoIterator};
+use std::iter::{IntoIterator, Iterator};
 
 /**
 Checks if the provided collection is sorted using provided comparator.
@@ -21,14 +21,19 @@ fn main() {
 }
 ```
 */
-pub fn is_sorted_by<'a, I, T, F>(iter: I, mut is_ordered:F) -> bool where I: IntoIterator<Item=&'a T>, T:'a , F: FnMut(&T, &T)->bool{
+pub fn is_sorted_by<'a, I, T, F>(iter: I, mut is_ordered: F) -> bool
+where
+    I: IntoIterator<Item = &'a T>,
+    T: 'a,
+    F: FnMut(&T, &T) -> bool,
+{
     let mut it = iter.into_iter();
     let mut prev = match it.next() {
         Option::None => return true,
-        Option::Some(first) => first
+        Option::Some(first) => first,
     };
     for curr in it {
-        if  ! is_ordered(&prev, &curr){
+        if !is_ordered(&prev, &curr) {
             return false;
         }
         prev = curr;
@@ -57,8 +62,12 @@ fn main() {
 }
 ```
 */
-pub fn is_sorted_asc<'a, I, T>(iter: I) -> bool where I: IntoIterator<Item=&'a T>, T:'a+PartialOrd{
-    is_sorted_by(iter, |ref a, ref b| a<b)
+pub fn is_sorted_asc<'a, I, T>(iter: I) -> bool
+where
+    I: IntoIterator<Item = &'a T>,
+    T: 'a + PartialOrd,
+{
+    is_sorted_by(iter, |ref a, ref b| a < b)
 }
 
 /**
@@ -82,8 +91,12 @@ fn main() {
 }
 ```
 */
-pub fn is_sorted_desc<'a, I, T>(iter: I) -> bool where I: IntoIterator<Item=&'a T>, T:'a+PartialOrd{
-    is_sorted_by(iter, |ref a, ref b| a>b)
+pub fn is_sorted_desc<'a, I, T>(iter: I) -> bool
+where
+    I: IntoIterator<Item = &'a T>,
+    T: 'a + PartialOrd,
+{
+    is_sorted_by(iter, |ref a, ref b| a > b)
 }
 
 /**
@@ -109,8 +122,12 @@ fn main() {
 }
 ```
 */
-pub fn is_sorted_wdesc<'a, I, T>(iter: I) -> bool where I: IntoIterator<Item=&'a T>, T:'a+PartialOrd{
-    is_sorted_by(iter, |ref a, ref b| a>=b)
+pub fn is_sorted_wdesc<'a, I, T>(iter: I) -> bool
+where
+    I: IntoIterator<Item = &'a T>,
+    T: 'a + PartialOrd,
+{
+    is_sorted_by(iter, |ref a, ref b| a >= b)
 }
 
 /**
@@ -136,10 +153,13 @@ fn main() {
 }
 ```
 */
-pub fn is_sorted_wasc<'a, I, T>(iter: I) -> bool where I: IntoIterator<Item=&'a T>, T:'a+PartialOrd{
-    is_sorted_by(iter, |ref a, ref b| a<=b)
+pub fn is_sorted_wasc<'a, I, T>(iter: I) -> bool
+where
+    I: IntoIterator<Item = &'a T>,
+    T: 'a + PartialOrd,
+{
+    is_sorted_by(iter, |ref a, ref b| a <= b)
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -147,7 +167,7 @@ mod tests {
 
     #[test]
     fn increase_empty() {
-        let arr :[i32;0] = [];
+        let arr: [i32; 0] = [];
         assert!(is_sorted_asc(&arr));
     }
 
@@ -177,7 +197,7 @@ mod tests {
 
     #[test]
     fn decrease_empty() {
-        let arr :[i32;0] = [];
+        let arr: [i32; 0] = [];
         assert!(is_sorted_desc(&arr));
     }
 
@@ -207,7 +227,7 @@ mod tests {
 
     #[test]
     fn no_increase_empty() {
-        let arr :[i32;0] = [];
+        let arr: [i32; 0] = [];
         assert!(is_sorted_wdesc(&arr));
     }
 
@@ -237,7 +257,7 @@ mod tests {
 
     #[test]
     fn no_decrease_empty() {
-        let arr :[i32;0] = [];
+        let arr: [i32; 0] = [];
         assert!(is_sorted_wasc(&arr));
     }
 
@@ -266,7 +286,7 @@ mod tests {
     }
 
     #[test]
-    fn nan(){
+    fn nan() {
         let arr = [1.0, 2.0, ::std::f64::NAN];
         assert!(!is_sorted_asc(&arr))
     }
@@ -279,7 +299,7 @@ mod tests {
 
     #[test]
     fn inf_neg() {
-        let arr = [ ::std::f64::NEG_INFINITY, 1.0, 2.0];
+        let arr = [::std::f64::NEG_INFINITY, 1.0, 2.0];
         assert!(is_sorted_asc(&arr))
     }
 }

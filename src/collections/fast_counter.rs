@@ -1,7 +1,6 @@
 use super::Counter;
 use fnv::FnvBuildHasher;
 
-
 /**
 A faster but less safe version of Counter.
 

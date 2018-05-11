@@ -39,10 +39,12 @@ fn main() {
 }
 ```
 */
-pub fn binary_asc<T>(arr: &[T], val: &T) -> Option<usize> where T: Ord {
+pub fn binary_asc<T>(arr: &[T], val: &T) -> Option<usize>
+where
+    T: Ord,
+{
     binary!(arr, val, Greater, Less)
 }
-
 
 /**
 Performs binary search in a slice sorted in the descending order.
@@ -67,7 +69,10 @@ fn main() {
 }
 ```
 */
-pub fn binary_desc<T>(arr: &[T], val: &T) -> Option<usize> where T: Ord {
+pub fn binary_desc<T>(arr: &[T], val: &T) -> Option<usize>
+where
+    T: Ord,
+{
     binary!(arr, val, Less, Greater)
 }
 
@@ -77,54 +82,54 @@ mod tests {
 
     #[test]
     fn asc_empty() {
-        let arr : [i32; 0] = [];
+        let arr: [i32; 0] = [];
         assert!(binary_asc(&arr, &7).is_none());
     }
 
     #[test]
     fn asc_one() {
-        let arr  = [5];
+        let arr = [5];
         assert!(binary_asc(&arr, &7).is_none());
     }
 
     #[test]
     fn asc_found() {
-        let arr  = [5, 7, 8, 12, 22, 33];
+        let arr = [5, 7, 8, 12, 22, 33];
         assert_eq!(binary_asc(&arr, &12), Some(3));
     }
     #[test]
     fn asc_too_small() {
-        let arr  = [5, 7, 8, 12, 22, 33];
+        let arr = [5, 7, 8, 12, 22, 33];
         assert_eq!(binary_asc(&arr, &3), None);
     }
 
     #[test]
     fn asc_not_found() {
-        let arr  = [5, 7, 8, 12, 22, 33];
+        let arr = [5, 7, 8, 12, 22, 33];
         assert_eq!(binary_asc(&arr, &13), None);
     }
 
     #[test]
     fn desc_empty() {
-        let arr : [i32; 0] = [];
+        let arr: [i32; 0] = [];
         assert!(binary_desc(&arr, &7).is_none());
     }
 
     #[test]
     fn desc_one() {
-        let arr  = [5];
+        let arr = [5];
         assert!(binary_desc(&arr, &7).is_none());
     }
 
     #[test]
     fn desc_found() {
-        let arr  = [44, 33, 22, 9, 7, 4, 2, 1];
+        let arr = [44, 33, 22, 9, 7, 4, 2, 1];
         assert_eq!(binary_desc(&arr, &2), Some(6));
     }
 
     #[test]
     fn desc_not_found() {
-        let arr  = [44, 33, 22, 9, 7, 4, 2, 1];
+        let arr = [44, 33, 22, 9, 7, 4, 2, 1];
         assert_eq!(binary_asc(&arr, &66), None);
     }
 }

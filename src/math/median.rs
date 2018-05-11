@@ -2,8 +2,8 @@ use super::super::search::{quick_select, quick_select_rand};
 use std::ops::{Add, Div};
 
 #[inline]
-fn check_len(len: usize){
-    if len == 0{
+fn check_len(len: usize) {
+    if len == 0 {
         panic!("Cannot calculate median of empty collection");
     }
 }
@@ -39,10 +39,13 @@ fn main(){
 }
 ```
 */
-pub fn median<T>(arr: &mut [T]) -> T where T: Clone+PartialOrd {
+pub fn median<T>(arr: &mut [T]) -> T
+where
+    T: Clone + PartialOrd,
+{
     let len = arr.len();
     check_len(len);
-    let mid = len/2;
+    let mid = len / 2;
     println!("mid {}", mid);
     quick_select(arr, mid)
 }
@@ -53,12 +56,14 @@ pub fn median<T>(arr: &mut [T]) -> T where T: Clone+PartialOrd {
     This is a version of ```median()``` function that uses randomized version of quick select.
     It is safer but slower.
 */
-pub fn median_rand<T>(arr: &mut [T]) -> T where T: Clone+PartialOrd {
+pub fn median_rand<T>(arr: &mut [T]) -> T
+where
+    T: Clone + PartialOrd,
+{
     let len = arr.len();
     check_len(len);
-    quick_select_rand(arr, len/2)
+    quick_select_rand(arr, len / 2)
 }
-
 
 /**
 Calculates median using the quick select algorithm.
@@ -91,26 +96,34 @@ fn main(){
 }
 ```
 */
-pub fn median_avg<T>(arr: &mut [T]) -> T where T: Clone+Ord+Add<Output=T>+Div<Output=T>+From<i32> {
+pub fn median_avg<T>(arr: &mut [T]) -> T
+where
+    T: Clone + Ord + Add<Output = T> + Div<Output = T> + From<i32>,
+{
     median_avg_impl(arr, quick_select)
 }
 
-pub fn median_avg_rand<T>(arr: &mut [T]) -> T where T: Clone+Ord+Add<Output=T>+Div<Output=T>+From<i32> {
+pub fn median_avg_rand<T>(arr: &mut [T]) -> T
+where
+    T: Clone + Ord + Add<Output = T> + Div<Output = T> + From<i32>,
+{
     median_avg_impl(arr, quick_select_rand)
 }
 
-
-fn median_avg_impl<T>(arr: &mut [T], qs: fn(&mut [T], usize)->T) -> T where T: Clone+Ord+Add<Output=T>+Div<Output=T>+From<i32>{
+fn median_avg_impl<T>(arr: &mut [T], qs: fn(&mut [T], usize) -> T) -> T
+where
+    T: Clone + Ord + Add<Output = T> + Div<Output = T> + From<i32>,
+{
     let len = arr.len();
     check_len(len);
-    let mid = qs(arr, len/2);
-    if len%2 == 1{
+    let mid = qs(arr, len / 2);
+    if len % 2 == 1 {
         mid
     } else {
         //after quick_select the array is partially sorted
         //all smaller elements are on the left, all bigger on the right
-        let prev = arr[..len/2].iter().max().unwrap();
-        (mid+prev.clone())/T::from(2)
+        let prev = arr[..len / 2].iter().max().unwrap();
+        (mid + prev.clone()) / T::from(2)
     }
 }
 
@@ -121,66 +134,66 @@ mod tests {
     #[should_panic]
     #[test]
     fn empty() {
-        let mut arr:[i32;0] = [];
+        let mut arr: [i32; 0] = [];
         median(&mut arr);
     }
 
     #[should_panic]
     #[test]
     fn empty_avg() {
-        let mut arr:[i32;0] = [];
+        let mut arr: [i32; 0] = [];
         median_avg(&mut arr);
     }
 
     #[test]
-    fn single(){
+    fn single() {
         let mut arr = [3];
         assert_eq!(median(&mut arr), 3);
     }
 
     #[test]
-    fn single_avg(){
+    fn single_avg() {
         let mut arr = [3];
         assert_eq!(median_avg(&mut arr), 3);
     }
 
     #[test]
-    fn two(){
+    fn two() {
         let mut arr = [3, 5];
         assert_eq!(median(&mut arr), 5);
     }
 
     #[test]
-    fn two_avg(){
+    fn two_avg() {
         let mut arr = [3, 5];
         assert_eq!(median_avg(&mut arr), 4);
     }
 
     #[test]
     #[ignore]
-    fn multiple_odd(){
-        let mut arr = [9, 2, 7, 3, 5, 4, 1, 6, 8 ];
+    fn multiple_odd() {
+        let mut arr = [9, 2, 7, 3, 5, 4, 1, 6, 8];
         assert_eq!(median(&mut arr), 5);
     }
 
     #[test]
     #[ignore]
-    fn multiple_even(){
-        let mut arr = [9, 2, 7, 3, 5, 4, 1, 6, 8, 0 ];
+    fn multiple_even() {
+        let mut arr = [9, 2, 7, 3, 5, 4, 1, 6, 8, 0];
         assert_eq!(median(&mut arr), 5);
     }
 
     #[test]
     #[ignore]
-    fn multiple_odd_avg(){
-        let mut arr = [9, 2, 7, 3, 5, 4, 1, 6, 8 ];
+    fn multiple_odd_avg() {
+        let mut arr = [9, 2, 7, 3, 5, 4, 1, 6, 8];
         assert_eq!(median_avg(&mut arr), 5);
     }
 
     #[test]
     #[ignore]
-    fn multiple_even_avg(){
-        let mut arr = [9, 2, 7, 3, 5, 4, 1, 6, 8, 0 ];
+    fn multiple_even_avg() {
+        let mut arr = [9, 2, 7, 3, 5, 4, 1, 6, 8, 0];
         assert_eq!(median_avg(&mut arr), 4);
     }
 }

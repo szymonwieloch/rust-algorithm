@@ -1,8 +1,6 @@
 use std::iter::IntoIterator;
 use std::ops::Add;
 
-
-
 /**
 Calculates maximum sum of consecutive elements in the provided collection.
 
@@ -30,7 +28,11 @@ fn main() {
 }
 ```
 */
-pub fn max_consecutive_sum<I, T>(iter: I) -> T where I: IntoIterator<Item=T> , T:Default+Ord+Clone+Add<Output=T>{
+pub fn max_consecutive_sum<I, T>(iter: I) -> T
+where
+    I: IntoIterator<Item = T>,
+    T: Default + Ord + Clone + Add<Output = T>,
+{
     let mut curr = T::default();
     let mut max_sum = T::default();
     for i in iter.into_iter() {
@@ -73,20 +75,24 @@ fn main() {
 }
 ```
 */
-pub fn max_consecutive_sum_idx<I, T>(iter: I) -> (T, (usize, usize)) where I: IntoIterator<Item=T> , T:Default+Ord+Clone+Add<Output=T>{
+pub fn max_consecutive_sum_idx<I, T>(iter: I) -> (T, (usize, usize))
+where
+    I: IntoIterator<Item = T>,
+    T: Default + Ord + Clone + Add<Output = T>,
+{
     let mut curr = T::default();
     let mut start_idx: usize = 0;
     let mut end_idx: usize = 0;
     let mut max_sum = T::default();
     for (curr_idx, val) in iter.into_iter().enumerate() {
-        curr = curr+val;
+        curr = curr + val;
         if curr < T::default() {
             curr = T::default();
             start_idx = curr_idx + 1;
         }
-        if curr> max_sum {
+        if curr > max_sum {
             max_sum = curr.clone();
-            end_idx = curr_idx+1;
+            end_idx = curr_idx + 1;
         }
     }
     (max_sum, (start_idx, end_idx))

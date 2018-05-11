@@ -1,5 +1,4 @@
-use std::iter::{Iterator, IntoIterator};
-
+use std::iter::{IntoIterator, Iterator};
 
 /**
 Finds index of the first element that is not sorted using a provided comparator.
@@ -22,15 +21,20 @@ fn main() {
 }
 ```
 */
-pub fn find_first_by<'a, I, T, F>(iter: I, mut is_ordered: F) -> Option<usize> where I: IntoIterator<Item=&'a T>, F: FnMut(&T, &T)->bool, T:'a{
+pub fn find_first_by<'a, I, T, F>(iter: I, mut is_ordered: F) -> Option<usize>
+where
+    I: IntoIterator<Item = &'a T>,
+    F: FnMut(&T, &T) -> bool,
+    T: 'a,
+{
     let mut it = iter.into_iter();
     let mut prev = match it.next() {
         Option::None => return None,
-        Option::Some(first) => first
+        Option::Some(first) => first,
     };
     for (i, curr) in it.enumerate() {
-        if ! is_ordered(prev, curr) {
-            return Some(i+1);
+        if !is_ordered(prev, curr) {
+            return Some(i + 1);
         }
         prev = curr;
     }
@@ -58,8 +62,13 @@ fn main() {
 }
 ```
 */
-pub fn find_first_desc<'a, I, T>(iter: I) -> Option<usize> where I: IntoIterator<Item=&'a T>, T:PartialOrd, T:'a {
-    find_first_by(iter, |ref a, ref b| a<=b)
+pub fn find_first_desc<'a, I, T>(iter: I) -> Option<usize>
+where
+    I: IntoIterator<Item = &'a T>,
+    T: PartialOrd,
+    T: 'a,
+{
+    find_first_by(iter, |ref a, ref b| a <= b)
 }
 
 /**
@@ -83,8 +92,13 @@ fn main() {
 }
 ```
 */
-pub fn find_first_wdesc<'a, I, T>(iter: I) -> Option<usize> where I: IntoIterator<Item=&'a T>, T:PartialOrd, T:'a {
-    find_first_by(iter, |ref a, ref b| a<b)
+pub fn find_first_wdesc<'a, I, T>(iter: I) -> Option<usize>
+where
+    I: IntoIterator<Item = &'a T>,
+    T: PartialOrd,
+    T: 'a,
+{
+    find_first_by(iter, |ref a, ref b| a < b)
 }
 
 /**
@@ -108,8 +122,13 @@ fn main() {
 }
 ```
 */
-pub fn find_first_wasc<'a, I, T>(iter: I) -> Option<usize> where I: IntoIterator<Item=&'a T>, T:PartialOrd, T:'a {
-    find_first_by(iter, |ref a, ref b| a>b)
+pub fn find_first_wasc<'a, I, T>(iter: I) -> Option<usize>
+where
+    I: IntoIterator<Item = &'a T>,
+    T: PartialOrd,
+    T: 'a,
+{
+    find_first_by(iter, |ref a, ref b| a > b)
 }
 
 /**
@@ -133,10 +152,14 @@ fn main() {
 }
 ```
 */
-pub fn find_first_asc<'a, I, T>(iter: I) -> Option<usize> where I: IntoIterator<Item=&'a T>, T:PartialOrd, T:'a {
-    find_first_by(iter, |ref a, ref b| a>=b)
+pub fn find_first_asc<'a, I, T>(iter: I) -> Option<usize>
+where
+    I: IntoIterator<Item = &'a T>,
+    T: PartialOrd,
+    T: 'a,
+{
+    find_first_by(iter, |ref a, ref b| a >= b)
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -177,7 +200,6 @@ mod tests {
         let arr = [44, 33, 22, 88, 11];
         assert_eq!(find_first_asc(arr.iter()), Some(3));
     }
-
 
     #[test]
     fn wdesc_empty() {
