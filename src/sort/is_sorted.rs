@@ -1,27 +1,39 @@
 use std::iter::{Iterator, IntoIterator};
 
-/*
-To follow the DRY rule a macro is created here and then used in 4 versions of functions.
-It is actually a template for all functions only with a change in the comparision operator.
-This is the best performing solution.
+/**
+Checks if the provided collection is sorted using provided comparator.
+
+# Complexity
+
+- Processing complexity: O(n)
+- Memory complexity: O(1)
+
+#Example
+```
+extern crate algorithm;
+use algorithm::sort::is_sorted_by;
+
+fn main() {
+    let arr_sorted = [3.0,5.0,7.0,9.0];
+    let arr_random = [1.0, 7.0, 6.0, 3.0, 0.0];
+    assert!(is_sorted_by(&arr_sorted, |&a, &b| b>a));
+    assert!(!is_sorted_by(&arr_random, |&a, &b| b>a));
+}
+```
 */
-macro_rules! check_sorted {
-    ($it:ident, $cond:tt) => {
-        {
-            let mut it = $it.into_iter();
-            let mut prev = match it.next() {
-                Option::None => return true,
-                Option::Some(first) => first
-            };
-            for curr in it {
-                if  curr $cond prev{
-                    return false;
-                }
-                prev = curr;
-            }
-            return true;
-        }
+pub fn is_sorted_by<'a, I, T, F>(iter: I, mut is_unordered:F) -> bool where I: IntoIterator<Item=&'a T>, T:'a , F: FnMut(&T, &T)->bool{
+    let mut it = iter.into_iter();
+    let mut prev = match it.next() {
+        Option::None => return true,
+        Option::Some(first) => first
     };
+    for curr in it {
+        if  is_unordered(&curr, &prev){
+            return false;
+        }
+        prev = curr;
+    }
+    true
 }
 
 /**
@@ -45,8 +57,8 @@ fn main() {
 }
 ```
 */
-pub fn is_sorted_asc<I, T>(iter: I) -> bool where I: IntoIterator<Item=T>, T:PartialOrd{
-    check_sorted!(iter, <=)
+pub fn is_sorted_asc<'a, I, T>(iter: I) -> bool where I: IntoIterator<Item=&'a T>, T:'a+PartialOrd{
+    is_sorted_by(iter, |ref a, ref b| a<=b)
 }
 
 /**
@@ -70,8 +82,8 @@ fn main() {
 }
 ```
 */
-pub fn is_sorted_desc<I, T>(iter: I) -> bool where I: IntoIterator<Item=T>, T:PartialOrd{
-    check_sorted!(iter, >=)
+pub fn is_sorted_desc<'a, I, T>(iter: I) -> bool where I: IntoIterator<Item=&'a T>, T:'a+PartialOrd{
+    is_sorted_by(iter, |ref a, ref b| a>=b)
 }
 
 /**
@@ -97,8 +109,8 @@ fn main() {
 }
 ```
 */
-pub fn is_sorted_desc_weak<I, T>(iter: I) -> bool where I: IntoIterator<Item=T>, T:PartialOrd{
-    check_sorted!(iter, >)
+pub fn is_sorted_desc_weak<'a, I, T>(iter: I) -> bool where I: IntoIterator<Item=&'a T>, T:'a+PartialOrd{
+    is_sorted_by(iter, |ref a, ref b| a>b)
 }
 
 /**
@@ -124,8 +136,8 @@ fn main() {
 }
 ```
 */
-pub fn is_sorted_asc_weak<I, T>(iter: I) -> bool where I: IntoIterator<Item=T>, T:PartialOrd{
-    check_sorted!(iter, <)
+pub fn is_sorted_asc_weak<'a, I, T>(iter: I) -> bool where I: IntoIterator<Item=&'a T>, T:'a+PartialOrd{
+    is_sorted_by(iter, |ref a, ref b| a<b)
 }
 
 

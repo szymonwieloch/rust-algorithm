@@ -75,7 +75,6 @@ fn quick_select_impl<T, F>(arr: &mut [T], mut n: usize, mut choose_pivot: F) -> 
 
     let mut lo: usize = 0;
     let mut hi: usize = arr.len();
-
     loop {
         if hi == lo + 1{
             return unsafe { arr.get_unchecked(lo) }.clone();
@@ -89,7 +88,7 @@ fn quick_select_impl<T, F>(arr: &mut [T], mut n: usize, mut choose_pivot: F) -> 
             Ordering::Less => {
                 hi = lo + pivot_idx;
             },
-            Ordering::Equal => return unsafe{arr.get_unchecked(n)}.clone()
+            Ordering::Equal => return unsafe{arr.get_unchecked(lo+n)}.clone()
         };
 
     }
@@ -179,6 +178,12 @@ mod tests {
         let fifth = quick_select(&mut arr, 4);
         arr.sort();
         assert_eq!(fifth, 'e');
+    }
+
+    #[test]
+    fn qs_found_by_partition() {
+        let mut arr = [9, 2, 7, 3, 5, 4, 1, 6, 8 ];
+        assert_eq!(quick_select(&mut arr, 4), 5);
     }
 
 
