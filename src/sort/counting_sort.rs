@@ -1,6 +1,7 @@
 use super::super::collections::FastCounter;
 use std::iter::FromIterator;
 use std::hash::Hash;
+use std::cmp::Ordering;
 
 fn fill_arr<T>(arr: &mut [T], elems: Vec<(T, usize)>)
 where
@@ -15,6 +16,38 @@ where
             }
         }
     }
+}
+
+
+/**
+Sorts elements using counting sort with the provided comparator.
+
+# Complexity
+
+- Processing complexity: O(n + k*log(k))
+- Memory complexity: O(k)
+
+where k - number of unique elements in the provided slice.
+
+# Example
+
+```
+extern crate algorithm;
+use algorithm::sort::counting_sort_by;
+
+fn main() {
+    let mut arr = ['a', 'b', 'c', 'a', 'b', 'c', 'c', 'c'];
+    counting_sort_by(&mut arr, |&a, &b| b.cmp(&a));
+    let expected = ['c', 'c', 'c', 'c', 'b', 'b', 'a', 'a'];
+    assert_eq!(arr, expected);
+}
+```
+*/
+pub fn counting_sort_by<'a, T, F>(arr: & mut [T], mut cmp: F) where T: 'a+Hash + Eq + Clone, F: FnMut(& T, & T)-> Ordering{
+    let counter: FastCounter<T> = FastCounter::from_iter(arr.iter().map(|ref e| e.clone()));
+    let mut elems: Vec<(T, usize)> = Vec::from_iter(counter.into_iter());
+    elems.sort_unstable_by(|ref a, ref b| cmp(&a.0, &b.0));
+    fill_arr(arr, elems);
 }
 
 /**
