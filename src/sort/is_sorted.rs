@@ -99,17 +99,17 @@ Weakly ordering allows subsequent elements to be equal.
 #Example
 ```
 extern crate algorithm;
-use algorithm::sort::is_sorted_desc_weak;
+use algorithm::sort::is_sorted_wdesc;
 
 fn main() {
     let arr_sorted = [9, 8, 8, 8, 6, 5, 3, 0];
     let arr_random = [1, 7, 6, 3, 0];
-    assert!(is_sorted_desc_weak(arr_sorted.iter()));
-    assert!(!is_sorted_desc_weak(arr_random.iter()));
+    assert!(is_sorted_wdesc(arr_sorted.iter()));
+    assert!(!is_sorted_wdesc(arr_random.iter()));
 }
 ```
 */
-pub fn is_sorted_desc_weak<'a, I, T>(iter: I) -> bool where I: IntoIterator<Item=&'a T>, T:'a+PartialOrd{
+pub fn is_sorted_wdesc<'a, I, T>(iter: I) -> bool where I: IntoIterator<Item=&'a T>, T:'a+PartialOrd{
     is_sorted_by(iter, |ref a, ref b| a>=b)
 }
 
@@ -126,17 +126,17 @@ Weakly ordering allows subsequent elements to be equal.
 #Example
 ```
 extern crate algorithm;
-use algorithm::sort::is_sorted_asc_weak;
+use algorithm::sort::is_sorted_wasc;
 
 fn main() {
     let arr_sorted = [3, 5, 7, 7, 7, 9];
     let arr_random = [1, 7, 6, 3, 0];
-    assert!(is_sorted_asc_weak(arr_sorted.iter()));
-    assert!(!is_sorted_asc_weak(arr_random.iter()));
+    assert!(is_sorted_wasc(arr_sorted.iter()));
+    assert!(!is_sorted_wasc(arr_random.iter()));
 }
 ```
 */
-pub fn is_sorted_asc_weak<'a, I, T>(iter: I) -> bool where I: IntoIterator<Item=&'a T>, T:'a+PartialOrd{
+pub fn is_sorted_wasc<'a, I, T>(iter: I) -> bool where I: IntoIterator<Item=&'a T>, T:'a+PartialOrd{
     is_sorted_by(iter, |ref a, ref b| a<=b)
 }
 
@@ -208,61 +208,61 @@ mod tests {
     #[test]
     fn no_increase_empty() {
         let arr :[i32;0] = [];
-        assert!(is_sorted_desc_weak(&arr));
+        assert!(is_sorted_wdesc(&arr));
     }
 
     #[test]
     fn no_increase_single() {
         let arr = [1];
-        assert!(is_sorted_desc_weak(&arr));
+        assert!(is_sorted_wdesc(&arr));
     }
 
     #[test]
     fn no_increase_true() {
         let arr = [44, 33, 22, 11, 0];
-        assert!(is_sorted_desc_weak(&arr));
+        assert!(is_sorted_wdesc(&arr));
     }
 
     #[test]
     fn no_increase_false() {
         let arr = [1, 4, 6, 5];
-        assert!(!is_sorted_desc_weak(&arr));
+        assert!(!is_sorted_wdesc(&arr));
     }
 
     #[test]
     fn no_increase_equal() {
         let arr = [33, 23, 23, 5, 4, 4, 1];
-        assert!(is_sorted_desc_weak(&arr));
+        assert!(is_sorted_wdesc(&arr));
     }
 
     #[test]
     fn no_decrease_empty() {
         let arr :[i32;0] = [];
-        assert!(is_sorted_asc_weak(&arr));
+        assert!(is_sorted_wasc(&arr));
     }
 
     #[test]
     fn no_decrease_single() {
         let arr = [1];
-        assert!(is_sorted_asc_weak(&arr));
+        assert!(is_sorted_wasc(&arr));
     }
 
     #[test]
     fn no_decrease_true() {
         let arr = [1, 6, 9, 10];
-        assert!(is_sorted_asc_weak(&arr));
+        assert!(is_sorted_wasc(&arr));
     }
 
     #[test]
     fn no_decrease_false() {
         let arr = [1, 4, 6, 5];
-        assert!(!is_sorted_asc_weak(&arr));
+        assert!(!is_sorted_wasc(&arr));
     }
 
     #[test]
     fn no_decrease_equal() {
         let arr = [4, 6, 8, 8, 9, 10, 10];
-        assert!(is_sorted_asc_weak(&arr));
+        assert!(is_sorted_wasc(&arr));
     }
 
     #[test]
