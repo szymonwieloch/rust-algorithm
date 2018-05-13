@@ -49,7 +49,7 @@ fn main(){
    let arr = [1,2,3,4,5,6,7];
 
    //creates 7 disjoint sets
-   let ds = DisjointSet::from_iter(&arr);
+   let mut ds: DisjointSet<i32> = DisjointSet::from_iter(&arr);
 
     //you can join existing sets
     ds.union(1, 2);
@@ -76,11 +76,8 @@ pub struct DisjointSet<T, S=RandomState>  where T: Eq+Hash , S: BuildHasher{
 impl<T, S> DisjointSet<T, S> where T:Eq + Hash , S:BuildHasher{
 
     /// Creates a new, empty `DisjointSet`.
-    pub fn new() -> DisjointSet<T, RandomState> {
-        DisjointSet {
-            ids: HashMap::new(),
-            data_by_id: Vec::new()
-        }
+    pub fn new() -> DisjointSet<T, RandomState> where S: Default{
+        Default::default()
     }
 
     /**
@@ -89,9 +86,9 @@ impl<T, S> DisjointSet<T, S> where T:Eq + Hash , S:BuildHasher{
     The DisjointSet will be able to hold at least capacity elements without reallocating.
     If capacity is 0, the DisjointSet will not allocate.
     */
-    pub fn with_capacity(capacity: usize) -> DisjointSet<T, RandomState> {
+    pub fn with_capacity(capacity: usize) -> DisjointSet<T, RandomState> where S: Default{
         DisjointSet {
-            ids: HashMap::with_capacity(capacity),
+            ids: HashMap::with_capacity_and_hasher(capacity, Default::default()),
             data_by_id: Vec::with_capacity(capacity)
         }
     }

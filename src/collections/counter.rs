@@ -62,11 +62,10 @@ where
     T: Hash + Eq,
     S: BuildHasher,
 {
+
     /// Creates a new, empty `Counter`.
-    pub fn new() -> Counter<T, RandomState> {
-        Counter {
-            counter: HashMap::new(),
-        }
+    pub fn new() -> Counter<T, S> where S: Default{
+        Default::default()
     }
 
     /**
@@ -75,11 +74,12 @@ where
     The Counter will be able to hold at least capacity elements without reallocating.
     If capacity is 0, the Counter will not allocate.
     */
-    pub fn with_capacity(capacity: usize) -> Counter<T, RandomState> {
+    pub fn with_capacity(capacity: usize) -> Counter<T, S> where S: Default{
         Counter {
-            counter: HashMap::with_capacity(capacity),
+            counter: HashMap::with_capacity_and_hasher(capacity, Default::default())
         }
     }
+
 
     /**
     Creates an empty Counter which will use the given hash builder to hash keys.
@@ -449,5 +449,22 @@ where
         Counter {
             counter: HashMap::from_iter(rhs.iter().map(|(ref key, &val)| ((*key).clone(), val))),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn new() {
+        let _cnt: Counter<i32> = Counter::new();
+    }
+
+    #[test]
+    fn chars() {
+        let s = "Lorem ipsum";
+        let cnt: Counter<char> = Counter::from_iter(s.chars());
+        assert_eq!(cnt[&'m'], 2)
     }
 }
