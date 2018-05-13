@@ -1,7 +1,5 @@
 use super::Counter;
 use fnv::FnvBuildHasher;
-use std::hash::Hash;
-use std::collections::HashMap;
 
 /**
 A faster but less safe version of Counter.

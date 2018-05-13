@@ -4,6 +4,8 @@ use std::collections::hash_map::RandomState;
 use std::hash::{BuildHasher, Hash};
 use std::iter::{Extend, FromIterator};
 use std::default::Default;
+use std::iter::Iterator;
+use std::collections::hash_map::IntoIter;
 
 #[derive(Debug, Clone, Copy)]
 struct Data {
@@ -19,6 +21,41 @@ impl Data {
         }
     }
 }
+/*
+struct FieldIter<'a, T> where T: 'a + Eq + Hash {
+    field: &'a T
+}
+
+impl<'a, T> FieldIter<'a, T> where T: 'a + Eq + Hash {
+    pub fn new(field: &'a T) -> Self {
+        Self{field}
+    }
+}
+*/
+pub struct SetIter<'a, T> where T:'a + Eq + Hash{
+    sets: IntoIter<usize, Vec<&'a T>>
+}
+
+impl<'a, T> Iterator for SetIter<'a, T> where T:'a + Eq + Hash {
+    type Item = ::std::vec::IntoIter<&'a T>;
+
+    fn next<'b>(&'b mut self) -> Option<<Self as Iterator>::Item> {
+        match self.sets.next() {
+            Option::None => None,
+            Option::Some((key, vect)) => Some(vect.into_iter())
+        }
+
+    }
+}
+
+impl<'a, T> SetIter<'a, T> where T:'a+Eq+Hash {
+    pub fn new(sets: IntoIter<usize, Vec<&'a T>>) -> Self {
+        Self{
+            sets
+        }
+    }
+}
+
 
 /**
 Implementation of disjoint set data structure with path compression and union by rank.
@@ -64,6 +101,15 @@ fn main(){
     //or if the element has been previously added to the set
     assert!(ds.contains(&7));
     assert!(!ds.contains(&10));
+
+    //finally, you can access sets and content of sets using iterator
+    for set in &mut ds {
+        println!("A new set:");
+        for elem in set.into_iter() {
+            print!("{}, ", elem);
+        }
+        println!("");
+    }
 }
 ```
 */
@@ -140,8 +186,8 @@ impl<T, S> DisjointSet<T, S> where T:Eq + Hash , S:BuildHasher{
     pub fn union(&mut self, a :T, b: T) {
         let a = self.make_or_get_set(a);
         let b = self.make_or_get_set(b);
-        let mut a_root = self.find_with_path_compression(a);
-        let mut b_root = self.find_with_path_compression(b);
+        let mut a_root = Self::find_with_path_compression(&mut self.data_by_id, a);
+        let mut b_root = Self::find_with_path_compression(&mut self.data_by_id, b);
         if a_root == b_root {
             return;
         }
@@ -184,7 +230,7 @@ impl<T, S> DisjointSet<T, S> where T:Eq + Hash , S:BuildHasher{
             Option::Some(id) => *id
         };
 
-        self.find_with_path_compression(a) == self.find_with_path_compression(b)
+        Self::find_with_path_compression(&mut self.data_by_id, a) == Self::find_with_path_compression(&mut self.data_by_id, b)
     }
 
     pub fn is_empty(&self) -> bool {
@@ -214,13 +260,22 @@ impl<T, S> DisjointSet<T, S> where T:Eq + Hash , S:BuildHasher{
         }
     }
 
-    fn find_with_path_compression(&mut self, id: usize) -> usize{
-        let mut parent = self.data_by_id[id].parent;
+    fn find_with_path_compression(data_by_id: &mut Vec<Data>, id: usize) -> usize{
+        let mut parent = data_by_id[id].parent;
         if parent != id{
-            parent = self.find_with_path_compression(parent);
-            self.data_by_id[id].parent = parent;
+            parent = Self::find_with_path_compression(data_by_id, parent);
+            data_by_id[id].parent = parent;
         }
         parent
+    }
+
+    fn build_sets<'a>(&'a mut self) -> HashMap<usize, Vec<&'a T>> {
+        let mut map : HashMap<usize, Vec<&'a T>> = HashMap::new();
+        for (ref key, ref val) in self.ids.iter(){
+            let root = Self::find_with_path_compression(&mut self.data_by_id, **val);
+            map.entry(root).or_insert_with(|| Vec::new()).push(key);
+        }
+        map
     }
 }
 
@@ -308,6 +363,15 @@ impl<'a, T, S> Extend<&'a T> for DisjointSet<T, S>
         for val in iter.into_iter().map(|&val| val.clone()) {
             self.make_set(val);
         }
+    }
+}
+
+impl<'a, T, S> IntoIterator for &'a mut  DisjointSet<T, S>  where T: Hash + Eq, S: BuildHasher{
+    type Item = ::std::vec::IntoIter<&'a T>;
+    type IntoIter = SetIter<'a, T>;
+
+    fn into_iter(self) -> <Self as IntoIterator>::IntoIter {
+        SetIter::new(self.build_sets().into_iter())
     }
 }
 
