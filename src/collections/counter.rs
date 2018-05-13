@@ -70,7 +70,7 @@ where
     }
 
     /**
-    Creates an empty HashMap with the specified capacity.
+    Creates an empty Counter with the specified capacity.
 
     The Counter will be able to hold at least capacity elements without reallocating.
     If capacity is 0, the Counter will not allocate.
@@ -82,7 +82,7 @@ where
     }
 
     /**
-    Creates an empty HashMap which will use the given hash builder to hash keys.
+    Creates an empty Counter which will use the given hash builder to hash keys.
 
     The created map has the default initial capacity.
     */
