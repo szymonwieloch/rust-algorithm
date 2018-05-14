@@ -42,7 +42,7 @@ impl<'a, T> Iterator for SetIter<'a, T> where T:'a + Eq + Hash {
     fn next<'b>(&'b mut self) -> Option<<Self as Iterator>::Item> {
         match self.sets.next() {
             Option::None => None,
-            Option::Some((key, vect)) => Some(vect.into_iter())
+            Option::Some((_key, vect)) => Some(vect.into_iter())
         }
 
     }
@@ -383,7 +383,6 @@ mod tests {
     #[test]
     fn create() {
         let arr = [1,2,3];
-        //let ds = DisjointSet::from_iter(&arr);
-        //let ds: DisjointSet<i32, RandomState> = DisjointSet::new();
+        let _ds: DisjointSet<i32> = DisjointSet::from_iter(&arr);
     }
 }
