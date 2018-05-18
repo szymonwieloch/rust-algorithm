@@ -18,8 +18,8 @@ use algorithm::search::binary_search_by;
 fn main() {
     let arr = [0, 3, 7, 8, 11, 13, 22];
 
-    assert_eq!(binary_search_by(&arr, |ref val| val.cmp(&11)), Some(4));
-    assert_eq!(binary_search_by(&arr, |ref val| val.cmp(&12)), None);
+    assert_eq!(binary_search_by(&arr, |ref val| (&11).cmp(*val)), Some(4));
+    assert_eq!(binary_search_by(&arr, |ref val| (*val).cmp(&12)), None);
 }
 ```
 */
