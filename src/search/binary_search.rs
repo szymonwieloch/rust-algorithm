@@ -1,5 +1,5 @@
 /*!
-Quickly finds element in a sorted array.
+Quickly finds element in a sorted slice.
 
 **More:** <https://en.wikipedia.org/wiki/Binary_search_algorithm>
 

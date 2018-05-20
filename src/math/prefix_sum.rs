@@ -22,12 +22,12 @@ queries in O(1) time. Therefore performing k queries has only log(n+k) complexit
 
 ```
 extern crate algorithm;
-use algorithm::collections::PrefixSum;
+use algorithm::math::PrefixSum;
 use std::iter::FromIterator;
 
 fn main(){
     let arr = [1, 3, 6, 3, 0, 8, 5];
-    let cs = PrefixSum::from_iter(arr.iter());
+    let cs = PrefixSum::from_iter(&arr);
     let s = cs.between(1, 4); //3+6+3
     assert_eq!(s, 12);
 }
@@ -68,6 +68,21 @@ where
             current_sum: T::default(),
         }
     }
+
+    pub fn with_capacity(capacity: usize) -> Self {
+        let mut sums = Vec::with_capacity(capacity +1);
+        sums.push(T::default());
+        Self{
+            sums,
+            current_sum: T::default()
+        }
+
+    }
+
+    pub fn push(&mut self, val: T){
+        self.current_sum += val;
+        self.sums.push(self.current_sum.clone());
+    }
 }
 
 impl<T> Extend<T> for PrefixSum<T>
@@ -75,9 +90,10 @@ where
     T: Default + Clone + Add<Output = T> + Sub<Output = T> + AddAssign<T>,
 {
     fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
+        let iter = iter.into_iter();
+        self.sums.reserve(iter.size_hint().0);
         for i in iter {
-            self.current_sum += i;
-            self.sums.push(self.current_sum.clone())
+            self.push(i);
         }
     }
 }
@@ -87,9 +103,10 @@ where
     T: Default + Clone + Add<Output = T> + Sub<Output = T> + AddAssign<T>,
 {
     fn extend<I: IntoIterator<Item = &'a T>>(&mut self, iter: I) {
+        let iter = iter.into_iter();
+        self.sums.reserve(iter.size_hint().0);
         for i in iter.into_iter().map(|e| e.clone()) {
-            self.current_sum += i;
-            self.sums.push(self.current_sum.clone());
+            self.push(i);
         }
     }
 }
@@ -99,13 +116,12 @@ where
     T: Default + Clone + Add<Output = T> + Sub<Output = T> + AddAssign<T>,
 {
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
-        let mut current_sum: T = T::default();
-        let mut sums: Vec<T> = vec![T::default()];
+        let iter = iter.into_iter();
+        let mut result = Self::with_capacity(iter.size_hint().0);
         for i in iter.into_iter() {
-            current_sum += i;
-            sums.push(current_sum.clone());
+           result.push(i);
         }
-        Self { current_sum, sums }
+        result
     }
 }
 
@@ -114,13 +130,12 @@ where
     T: Default + Clone + Add<Output = T> + Sub<Output = T> + AddAssign<T>,
 {
     fn from_iter<I: IntoIterator<Item = &'a T>>(iter: I) -> Self {
-        let mut current_sum: T = T::default();
-        let mut sums: Vec<T> = vec![T::default()];
+        let iter = iter.into_iter();
+        let mut result = Self::with_capacity(iter.size_hint().0);
         for i in iter.into_iter().map(|ref e| (*e).clone()) {
-            current_sum += i;
-            sums.push(current_sum.clone());
+           result.push(i);
         }
-        Self { current_sum, sums }
+        result
     }
 }
 

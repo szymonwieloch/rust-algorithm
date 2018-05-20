@@ -1,7 +1,19 @@
+/*!
+Calculates median of the slice.
+
+**More:** <https://en.wikipedia.org/wiki/Median>
+
+# Complexity
+
+- Average processing complexity: O(n)
+- Worst processing complexity: O(n**2)
+- Memory complexity: 0(1)
+*/
+
 use super::super::search::quick_select::{quick_select, quick_select_rand};
 use std::ops::{Add, Div};
 
-#[inline]
+#[inline(always)]
 fn check_len(len: usize) {
     if len == 0 {
         panic!("Cannot calculate median of empty collection");
@@ -12,7 +24,7 @@ fn check_len(len: usize) {
 Calculates median using the quick select algorithm.
 
 If the array has an odd number of elements, the middle element is returned.
-If the array has an even number of elements, the greater of the middle two is returned.
+If the array has an even number of elements, the greater one of the middle two is returned.
 
 The provided mutable slice is used for calculations and its elements are rearranged
 during processing.
@@ -103,6 +115,13 @@ where
     median_avg_impl(arr, quick_select)
 }
 
+
+/**
+    Calculates median using the randomized quick select algorithm.
+
+    This is a version of ```median_avg()``` function that uses randomized version of quick select.
+    It is safer but slower.
+*/
 pub fn median_avg_rand<T>(arr: &mut [T]) -> T
 where
     T: Clone + Ord + Add<Output = T> + Div<Output = T> + From<i32>,
