@@ -40,7 +40,7 @@ fn main(){
     //It is also possible to find the most frequent elements:
     assert_eq!(counter.most_common().get(0), Some(&(' ', 5 as usize)));
 
-    //Finally, Counter supports adding and subtraction
+    //Finally, Counter supports adding
      let other: Counter<char> = Counter::from_iter("Etiam ullamcorper.".chars());
      counter += other;
      assert_eq!(counter.get(&'o'), Some(&(4 as usize)));
@@ -143,6 +143,10 @@ where
         res.sort_unstable_by_key(|&(ref _key, val)| ::std::usize::MAX - val);
         res
     }
+
+    pub fn push(&mut self, val: T){
+        *self.counter.entry(val).or_insert(0) += 1;
+    }
 }
 
 impl<T, S> Default for Counter<T, S>
@@ -165,11 +169,12 @@ where
 {
     ///Creates Counter from provided iterator.
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
-        let mut map = HashMap::default();
+        let iter = iter.into_iter();
+        let mut cnt = Self::with_capacity(iter.size_hint().0);
         for key in iter {
-            *map.entry(key).or_insert(0) += 1;
+            cnt.push(key);
         }
-        Counter { counter: map }
+        cnt
     }
 }
 
@@ -180,11 +185,12 @@ where
 {
     ///Creates Counter from provided iterator.
     fn from_iter<I: IntoIterator<Item = &'a T>>(iter: I) -> Self {
-        let mut map = HashMap::default();
-        for key in iter.into_iter().map(|ref key| key.clone()) {
-            *map.entry(key.clone()).or_insert(0) += 1;
+        let iter = iter.into_iter();
+        let mut cnt = Self::with_capacity(iter.size_hint().0);
+        for key in iter.map(|ref key| (*key).clone()) {
+            cnt.push(key);
         }
-        Counter { counter: map }
+        cnt
     }
 }
 
@@ -234,8 +240,10 @@ where
 {
     ///Extends Counter with provided interator.
     fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
+        let iter = iter.into_iter();
+        self.counter.reserve(iter.size_hint().0);
         for key in iter {
-            *self.counter.entry(key).or_insert(0) += 1;
+            self.push(key);
         }
     }
 }
@@ -247,8 +255,10 @@ where
 {
     ///Extends Counter with provided interator.
     fn extend<I: IntoIterator<Item = &'a T>>(&mut self, iter: I) {
-        for key in iter.into_iter().map(|&key| key) {
-            *self.counter.entry(key).or_insert(0) += 1;
+        let iter = iter.into_iter();
+        self.counter.reserve(iter.size_hint().0);
+        for key in iter.map(|&key| key) {
+            self.push(key);
         }
     }
 }
@@ -467,4 +477,19 @@ mod tests {
         let cnt: Counter<char> = Counter::from_iter(s.chars());
         assert_eq!(cnt[&'m'], 2)
     }
+
+    #[test]
+    fn ints() {
+        let arr = [1,2,3,1,2,3,1,2,3];
+        let mut cnt: Counter<i32> = Counter::from_iter(&arr);
+        assert_eq!(cnt.len(), 3);
+        assert_eq!(cnt[&2], 3);
+        cnt.extend(&[1,2,3,4,5]);
+        assert_eq!(cnt.len(), 5);
+        assert_eq!(cnt[&1], 4);
+
+
+    }
+
+
 }

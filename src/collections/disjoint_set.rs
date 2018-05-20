@@ -122,7 +122,7 @@ pub struct DisjointSet<T, S=RandomState>  where T: Eq+Hash , S: BuildHasher{
 impl<T, S> DisjointSet<T, S> where T:Eq + Hash , S:BuildHasher{
 
     /// Creates a new, empty `DisjointSet`.
-    pub fn new() -> DisjointSet<T, RandomState> where S: Default{
+    pub fn new() -> Self where S: Default{
         Default::default()
     }
 
@@ -132,8 +132,8 @@ impl<T, S> DisjointSet<T, S> where T:Eq + Hash , S:BuildHasher{
     The DisjointSet will be able to hold at least capacity elements without reallocating.
     If capacity is 0, the DisjointSet will not allocate.
     */
-    pub fn with_capacity(capacity: usize) -> DisjointSet<T, RandomState> where S: Default{
-        DisjointSet {
+    pub fn with_capacity(capacity: usize) -> Self where S: Default{
+        Self {
             ids: HashMap::with_capacity_and_hasher(capacity, Default::default()),
             data_by_id: Vec::with_capacity(capacity)
         }
@@ -144,7 +144,7 @@ impl<T, S> DisjointSet<T, S> where T:Eq + Hash , S:BuildHasher{
 
     The created set has the default initial capacity.
     */
-    pub fn with_hasher(hash_builder: S) -> DisjointSet<T, S> {
+    pub fn with_hasher(hash_builder: S) -> Self {
         Self {
             ids: HashMap::with_hasher(hash_builder),
             data_by_id: Vec::new()
@@ -157,7 +157,7 @@ impl<T, S> DisjointSet<T, S> where T:Eq + Hash , S:BuildHasher{
     The Counter will be able to hold at least capacity elements without reallocating.
     If capacity is 0, the Counter will not allocate.
     */
-    pub fn with_capacity_and_hasher(capacity: usize, hash_builder: S) -> DisjointSet<T, S> {
+    pub fn with_capacity_and_hasher(capacity: usize, hash_builder: S) -> Self {
         Self {
             ids: HashMap::with_capacity_and_hasher(capacity, hash_builder),
             data_by_id: Vec::with_capacity(capacity)
@@ -246,6 +246,11 @@ impl<T, S> DisjointSet<T, S> where T:Eq + Hash , S:BuildHasher{
         self.data_by_id.clear()
     }
 
+    pub fn reserve(&mut self, additional: usize) {
+        self.data_by_id.reserve(additional);
+        self.ids.reserve(additional);
+    }
+
     fn make_or_get_set(&mut self, val: T) -> usize{
         let next_id = self.ids.len();
         //insert but do not override existing one
@@ -301,7 +306,8 @@ impl<T, S> FromIterator<T> for DisjointSet<T, S>
     (equivalent to calling make_set() multiple times).
     */
     fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
-        let mut ds: DisjointSet<T, S> = DisjointSet::default();
+        let iter = iter.into_iter();
+        let mut ds = Self::with_capacity(iter.size_hint().0);
         for val in iter {
             ds.make_set(val);
         }
@@ -321,7 +327,8 @@ impl<'a, T, S> FromIterator<&'a T> for DisjointSet<T, S>
    (equivalent to calling make_set() multiple times).
    */
     fn from_iter<I: IntoIterator<Item = &'a T>>(iter: I) -> Self {
-        let mut ds = Self::default();
+        let iter = iter.into_iter();
+        let mut ds = Self::with_capacity(iter.size_hint().0);
         for val in iter.into_iter().map(|ref val| (*val).clone()) {
             ds.make_set(val)
         }
@@ -342,6 +349,8 @@ impl<T, S> Extend<T> for DisjointSet<T, S>
    (equivalent to calling make_set() multiple times).
    */
     fn extend<I: IntoIterator<Item = T>>(&mut self, iter: I) {
+        let iter = iter.into_iter();
+        self.reserve(iter.size_hint().0);
         for val in iter {
             self.make_set(val)
         }
@@ -360,7 +369,9 @@ impl<'a, T, S> Extend<&'a T> for DisjointSet<T, S>
    (equivalent to calling make_set() multiple times).
    */
     fn extend<I: IntoIterator<Item = &'a T>>(&mut self, iter: I) {
-        for val in iter.into_iter().map(|&val| val.clone()) {
+        let iter = iter.into_iter();
+        self.reserve(iter.size_hint().0);
+        for val in iter.map(|&val| val.clone()) {
             self.make_set(val);
         }
     }
@@ -383,6 +394,55 @@ mod tests {
     #[test]
     fn create() {
         let arr = [1,2,3];
-        let _ds: DisjointSet<i32> = DisjointSet::from_iter(&arr);
+        let ds: DisjointSet<i32> = DisjointSet::from_iter(&arr);
+        assert_eq!(ds.len(), 3);
     }
+
+    #[test]
+    fn contains() {
+        let arr = [1,2,3];
+        let ds: DisjointSet<i32> = DisjointSet::from_iter(&arr);
+        assert!(ds.contains(&1));
+        assert!(ds.contains(&2));
+        assert!(ds.contains(&3));
+        assert!(!ds.contains(&4));
+        assert!(!ds.contains(&0));
+
+    }
+
+    #[test]
+    fn make_set(){
+        let mut ds: DisjointSet<i32> = DisjointSet::new();
+        ds.make_set(3);
+        ds.make_set(4);
+        assert!(ds.contains(&3));
+        assert!(ds.contains(&4));
+        assert!(!ds.contains(&0));
+        ds.make_set(4);
+        assert!(ds.contains(&4));
+
+    }
+
+
+
+    #[test]
+    fn union(){
+        let mut ds: DisjointSet<i32> = DisjointSet::new();
+        ds.union(3,4);
+        ds.union(5,6);
+        //union() should create sets:
+        assert!(ds.contains(&3));
+        assert!(ds.contains(&4));
+        assert!(ds.contains(&5));
+        assert!(ds.contains(&6));
+        //with valid relations:
+        assert!(ds.in_union(&3,&4));
+        assert!(ds.in_union(&5,&6));
+        assert!(!ds.in_union(&4,&5));
+        ds.union(4,5);
+        assert!(ds.in_union(&4, &5));
+        assert!(ds.in_union(&3, &6));
+
+    }
+
 }
