@@ -1,5 +1,14 @@
+/*!
+Finds the longest sorted substring in the collection.
+
+# Complexity
+
+- Processing complexity: O(n)
+- Memory complexity: O(1)
+*/
+
 /**
-Finds the longest ordered substring using the provided comparator.
+Finds the longest sorted substring using the provided comparator.
 
 Returns starting index of the substring and its length.
 
@@ -13,7 +22,7 @@ Returns starting index of the substring and its length.
 # Example
 ```
 extern crate algorithm;
-use algorithm::sort::longest_substring_by;
+use algorithm::sort::longest_substring::longest_substring_by;
 
 fn main(){
     let arr = [1,2,3,2,1,2,3,4,5];
@@ -65,7 +74,7 @@ Returns starting index of the substring and its length.
 # Example
 ```
 extern crate algorithm;
-use algorithm::sort::longest_substring_asc;
+use algorithm::sort::longest_substring::longest_substring_asc;
 
 fn main(){
     let arr = [1,2,3,2,1,2,3,4,5];
@@ -97,7 +106,7 @@ Returns starting index of the substring and its length.
 # Example
 ```
 extern crate algorithm;
-use algorithm::sort::longest_substring_wasc;
+use algorithm::sort::longest_substring::longest_substring_wasc;
 
 fn main(){
     let arr = [1,2,3,2,1,2,3,3,4];
@@ -129,7 +138,7 @@ Returns starting index of the substring and its length.
 # Example
 ```
 extern crate algorithm;
-use algorithm::sort::longest_substring_desc;
+use algorithm::sort::longest_substring::longest_substring_desc;
 
 fn main(){
     let arr = [1,2,3,4,5,4,3,2,1];
@@ -161,7 +170,7 @@ Returns starting index of the substring and its length.
 # Example
 ```
 extern crate algorithm;
-use algorithm::sort::longest_substring_wdesc;
+use algorithm::sort::longest_substring::longest_substring_wdesc;
 
 fn main(){
     let arr = [1,2,3,4,5,4,3,2,2];

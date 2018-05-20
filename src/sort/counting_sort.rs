@@ -1,3 +1,16 @@
+/*!
+Effectively sorts an array that contains a small number of unique elements.
+
+**More:** <https://en.wikipedia.org/wiki/Counting_sort>
+
+# Complexity
+
+- Processing complexity: O(n + k*log(k))
+- Memory complexity: O(k)
+
+where k - number of unique elements in the provided slice.
+*/
+
 use super::super::collections::FastCounter;
 use std::iter::FromIterator;
 use std::hash::Hash;
@@ -22,6 +35,8 @@ where
 /**
 Sorts elements using counting sort with the provided comparator.
 
+**More:** <https://en.wikipedia.org/wiki/Counting_sort>
+
 # Complexity
 
 - Processing complexity: O(n + k*log(k))
@@ -33,7 +48,7 @@ where k - number of unique elements in the provided slice.
 
 ```
 extern crate algorithm;
-use algorithm::sort::counting_sort_by;
+use algorithm::sort::counting_sort::counting_sort_by;
 
 fn main() {
     let mut arr = ['a', 'b', 'c', 'a', 'b', 'c', 'c', 'c'];
@@ -53,6 +68,8 @@ pub fn counting_sort_by<'a, T, F>(arr: & mut [T], mut cmp: F) where T: 'a+Hash +
 /**
 Sorts elements using counting sort in the ascending order.
 
+**More:** <https://en.wikipedia.org/wiki/Counting_sort>
+
 # Complexity
 
 - Processing complexity: O(n + k*log(k))
@@ -64,7 +81,7 @@ where k - number of unique elements in the provided slice.
 
 ```
 extern crate algorithm;
-use algorithm::sort::counting_sort_asc;
+use algorithm::sort::counting_sort::counting_sort_asc;
 
 fn main() {
     let mut arr = ['a', 'b', 'c', 'a', 'b', 'c', 'c', 'c'];
@@ -87,6 +104,8 @@ where
 /**
 Sorts elements using counting sort in the descending order.
 
+**More:** <https://en.wikipedia.org/wiki/Counting_sort>
+
 # Complexity
 
 - Processing complexity: O(n + k*log(k))
@@ -98,7 +117,7 @@ where k - number of unique elements in the provided slice.
 
 ```
 extern crate algorithm;
-use algorithm::sort::counting_sort_desc;
+use algorithm::sort::counting_sort::counting_sort_desc;
 
 fn main() {
     let mut arr = ['c','a', 'b', 'c', 'd', 'a', 'b', 'c', 'c', 'c'];

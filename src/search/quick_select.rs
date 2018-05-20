@@ -1,3 +1,19 @@
+/*!
+Finds n-th element in an unsorted slice.
+
+Normally sorting an array and finding the n-th element in it takes O(n*log(n)). But Quick Select
+(using an algorithm similar to Quick Sort) can do it with O(n) complexity.
+The algorithm requires a mutable slice and rearranges elements in the slice during execution.
+
+**More:** <https://en.wikipedia.org/wiki/Quickselect>
+
+# Complexity
+
+- Average processing complexity: O(n)
+- Worst case processing complexity: O(n²)
+- Memory complexity: O(1)
+*/
+
 use std::cmp::Ordering;
 use rand::distributions::Range;
 use rand::distributions::IndependentSample;
@@ -21,7 +37,7 @@ where
 }
 
 /**
-Finds n-th element in a unsorted slice.
+Finds n-th element in an unsorted slice.
 
 Normally sorting an array and finding the n-th element in it takes O(n*log(n)). But Quick Select
 (using an algorithm similar to Quick Sort) can do it with O(n) complexity.
@@ -32,14 +48,14 @@ The algorithm requires a mutable slice and rearranges elements in the slice duri
 # Complexity
 
 - Average processing complexity: O(n)
-- Worst case processing complexity: O(n**2)
+- Worst case processing complexity: O(n²)
 - Memory complexity: O(1)
 
 # Example
 
 ```
 extern crate algorithm;
-use algorithm::search::quick_select;
+use algorithm::search::quick_select::quick_select;
 
 fn main(){
 let mut arr = ['d', 'a', 'b', 'h', 'c', 'f', 'e', 'g'];

@@ -1,4 +1,4 @@
-use super::super::search::{quick_select, quick_select_rand};
+use super::super::search::quick_select::{quick_select, quick_select_rand};
 use std::ops::{Add, Div};
 
 #[inline]
@@ -29,7 +29,7 @@ during processing.
 
 ```
 extern crate algorithm;
-use algorithm::math::median;
+use algorithm::math::median::median;
 
 fn main(){
     let mut odd = [9, 2, 7, 3, 5, 4, 1, 6, 8 ];
@@ -86,7 +86,7 @@ during processing.
 
 ```
 extern crate algorithm;
-use algorithm::math::median_avg;
+use algorithm::math::median::median_avg;
 
 fn main(){
     let mut odd = [9, 2, 7, 3, 5, 4, 1, 6, 8];

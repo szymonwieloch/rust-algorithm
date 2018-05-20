@@ -1,3 +1,14 @@
+/*!
+Quickly finds element in a sorted array.
+
+**More:** <https://en.wikipedia.org/wiki/Binary_search_algorithm>
+
+# Complexity
+
+- Processing omplexity: O(log(n))
+- Memory complexity: O(1)
+*/
+
 use std::cmp::Ordering;
 
 /**
@@ -13,7 +24,7 @@ Performs binary search in a sorted slice using provided comparator.
 # Example
 ```
 extern crate algorithm;
-use algorithm::search::binary_search_by;
+use algorithm::search::binary_search::binary_search_by;
 
 fn main() {
     let arr = [0, 3, 7, 8, 11, 13, 22];
@@ -53,7 +64,7 @@ Performs binary search in a slice sorted in the ascending order.
 # Example
 ```
 extern crate algorithm;
-use algorithm::search::binary_search_asc;
+use algorithm::search::binary_search::binary_search_asc;
 
 fn main() {
     let arr = [0, 3, 7, 8, 11, 13, 22];
@@ -83,7 +94,7 @@ Performs binary search in a slice sorted in the descending order.
 # Example
 ```
 extern crate algorithm;
-use algorithm::search::binary_search_desc;
+use algorithm::search::binary_search::binary_search_desc;
 
 fn main() {
     let arr = [88, 77, 66, 55, 44, 33, 22, 11];

@@ -1,3 +1,14 @@
+/*!
+Checks if the collection is sorted.
+
+# Complexity
+
+- Processing complexity: O(n)
+- Memory complexity: O(1)
+*/
+
+
+
 use std::iter::{IntoIterator, Iterator};
 
 /**
@@ -11,7 +22,7 @@ Checks if the provided collection is sorted using provided comparator.
 #Example
 ```
 extern crate algorithm;
-use algorithm::sort::is_sorted_by;
+use algorithm::sort::is_sorted::is_sorted_by;
 
 fn main() {
     let arr_sorted = [3.0,5.0,7.0,9.0];
@@ -52,7 +63,7 @@ Checks if the provided collection is sorted in ascending order.
 #Example
 ```
 extern crate algorithm;
-use algorithm::sort::is_sorted_asc;
+use algorithm::sort::is_sorted::is_sorted_asc;
 
 fn main() {
     let arr_sorted = [3,5,7,9];
@@ -81,7 +92,7 @@ Checks if the provided collection is sorted in descending order.
 #Example
 ```
 extern crate algorithm;
-use algorithm::sort::is_sorted_desc;
+use algorithm::sort::is_sorted::is_sorted_desc;
 
 fn main() {
     let arr_sorted = [9, 8, 6, 5, 3, 0];
@@ -112,7 +123,7 @@ Weakly ordering allows subsequent elements to be equal.
 #Example
 ```
 extern crate algorithm;
-use algorithm::sort::is_sorted_wdesc;
+use algorithm::sort::is_sorted::is_sorted_wdesc;
 
 fn main() {
     let arr_sorted = [9, 8, 8, 8, 6, 5, 3, 0];
@@ -143,7 +154,7 @@ Weakly ordering allows subsequent elements to be equal.
 #Example
 ```
 extern crate algorithm;
-use algorithm::sort::is_sorted_wasc;
+use algorithm::sort::is_sorted::is_sorted_wasc;
 
 fn main() {
     let arr_sorted = [3, 5, 7, 7, 7, 9];
