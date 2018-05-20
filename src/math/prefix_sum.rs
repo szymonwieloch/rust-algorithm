@@ -55,9 +55,6 @@ where
     - Memory complexity: O(1)
     */
     pub fn between(&self, from: usize, to: usize) -> T {
-        if from > to {
-            panic!("In a range the start value cannot be lower than the end.");
-        }
         self.sums[to].clone() - self.sums[from].clone()
     }
 
@@ -145,5 +142,36 @@ where
 {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn simple() {
+        let arr = [3, 6, 4, 2, 1];
+        let ps: PrefixSum<i32> = PrefixSum::from_iter(&arr);
+        assert_eq!(ps.between(1,3), 10);
+        assert_eq!(ps.between(0,5), 16);
+        assert_eq!(ps.between(3,3), 0);
+    }
+
+    #[test]
+    fn reversed() {
+        let arr = [3, 6, 4, 2, 1];
+        let ps: PrefixSum<i32> = PrefixSum::from_iter(&arr);
+        assert_eq!(ps.between(3, 1), -10);
+        assert_eq!(ps.between(5, 0), -16);
+        assert_eq!(ps.between(3,3), 0);
+    }
+
+    #[should_panic]
+    #[test]
+    fn too_big_indexes() {
+        let arr = [3, 6, 4, 2, 1];
+        let ps: PrefixSum<i32> = PrefixSum::from_iter(&arr);
+        ps.between(2, 7);
     }
 }
