@@ -1,58 +1,48 @@
-/*!
-Quickly finds element in a sorted slice.
-
-**More:** <https://en.wikipedia.org/wiki/Binary_search_algorithm>
-
-# Complexity
-
-- Processing omplexity: O(log(n))
-- Memory complexity: O(1)
-*/
-
 use std::cmp::Ordering;
+use super::super::sort::SortingOrder;
 
-/**
-Performs binary search in a sorted slice using provided comparator.
-
-**More:** <https://en.wikipedia.org/wiki/Binary_search_algorithm>
-
-# Complexity
-
-- Processing omplexity: O(log(n))
-- Memory complexity: O(1)
-
-# Example
-```
-extern crate algorithm;
-use algorithm::search::binary_search::binary_search_by;
-
-fn main() {
-    let arr = [0, 3, 7, 8, 11, 13, 22];
-
-    assert_eq!(binary_search_by(&arr, |ref val| (&11).cmp(*val)), Some(4));
-    assert_eq!(binary_search_by(&arr, |ref val| (*val).cmp(&12)), None);
-}
-```
-*/
-pub fn binary_search_by<'a, T, F>(arr: &'a [T], mut cmp: F) -> Option<usize>
+//this is the actual implementation of binary search
+//it is inlined so that the comparator gets inlined too
+#[inline(always)]
+fn binary_search_impl<'a, T, F>(arr: &'a [T], mut cmp: F) -> Option<usize>
     where
         F: FnMut(&'a T) -> Ordering,
 {
-    let mut lo: isize = 0;
-    let mut hi: isize = arr.len() as isize -1;
+    //This check is needed because otherwise hi can be lower than 0
+    if arr.is_empty(){
+        return None;
+    }
+    //highest and lowest indexes of the subslice being checked
+    let mut lo: usize = 0;
+    let mut hi: usize = arr.len() -1;
     while lo <= hi {
+        //it is better to use (hi-lo)/2 because writing (hi+2)/2 can lead to a overflow
         let mid = lo + (hi-lo)/2;
-        match cmp(unsafe{arr.get_unchecked(mid as usize)}) {
-            Ordering::Less => hi = mid -1,
+        //this i safe, mid is always in the range
+        match cmp(unsafe{arr.get_unchecked(mid)}) {
+            Ordering::Less => {
+                //prevent underflow
+                if mid == 0{
+                    return None;
+                }
+                hi = mid -1;
+            },
             Ordering::Greater => lo = mid+1,
-            Ordering::Equal => return Option::Some(mid as usize)
+            Ordering::Equal => return Option::Some(mid)
         }
     }
     Option::None
 }
 
+
+
 /**
-Performs binary search in a slice sorted in the ascending order.
+Performs binary search in a sorted slice using provided comparator.
+
+Binary search is a popular way of speeading up search for a given value in a collection.
+While normally comparing value after value has O(n) complexity, binary search achieves the same
+result in just O(log(n)). It requires previously sorted slice. If the slice is unsorted,
+```binary_search()``` returns invalid information.
 
 **More:** <https://en.wikipedia.org/wiki/Binary_search_algorithm>
 
@@ -64,25 +54,31 @@ Performs binary search in a slice sorted in the ascending order.
 # Example
 ```
 extern crate algorithm;
-use algorithm::search::binary_search::binary_search_asc;
+use algorithm::search::binary_search_by;
+use algorithm::sort::SortingOrder::*;
 
 fn main() {
     let arr = [0, 3, 7, 8, 11, 13, 22];
 
-    assert_eq!(binary_search_asc(&arr, &11), Some(4));
-    assert_eq!(binary_search_asc(&arr, &12), None);
+    assert_eq!(binary_search_by(&arr, |ref val| (&11).cmp(*val)), Some(4));
+    assert_eq!(binary_search_by(&arr, |ref val| (&12).cmp(*val)), None);
 }
 ```
 */
-pub fn binary_search_asc<'a, T>(arr: &'a[T], val: &T) -> Option<usize>
-where
-    T: Ord,
+pub fn binary_search_by<'a, T, F>(arr: &'a [T], cmp: F) -> Option<usize>
+    where
+        F: FnMut(&'a T) -> Ordering,
 {
-    binary_search_by(arr, |ref t| val.cmp(&t))
+    binary_search_impl(arr, cmp)
 }
 
 /**
-Performs binary search in a slice sorted in the descending order.
+Performs binary search in a sorted slice.
+
+Binary search is a popular way of speeading up search for a given value in a collection.
+While normally comparing value after value has O(n) complexity, binary search achieves the same
+result in just O(log(n)). It requires previously sorted slice. If the slice is unsorted,
+```binary_search()``` returns invalid information.
 
 **More:** <https://en.wikipedia.org/wiki/Binary_search_algorithm>
 
@@ -94,77 +90,128 @@ Performs binary search in a slice sorted in the descending order.
 # Example
 ```
 extern crate algorithm;
-use algorithm::search::binary_search::binary_search_desc;
+use algorithm::search::binary_search;
+use algorithm::sort::SortingOrder::*;
 
 fn main() {
-    let arr = [88, 77, 66, 55, 44, 33, 22, 11];
+    let asc = [0, 3, 7, 8, 11, 13, 22];
+    assert_eq!(binary_search(&asc, &11, Ascending), Some(4));
+    assert_eq!(binary_search(&asc, &12, Ascending), None);
 
-    assert_eq!(binary_search_desc(&arr, &33), Some(5));
-    assert_eq!(binary_search_desc(&arr, &34), None);
+    let desc = [100, 88, 74, 53, 24, 12, 1];
+    assert_eq!(binary_search(&desc, &24, Descending), Some(4));
+    assert_eq!(binary_search(&desc, &23, Descending), None);
 }
 ```
 */
-pub fn binary_search_desc<'a, T>(arr: &'a [T], val: &T) -> Option<usize>
+pub fn binary_search<'a, T>(arr: &'a[T], val: &T, order: SortingOrder) -> Option<usize>
 where
     T: Ord,
 {
-    binary_search_by(arr, |ref t| t.cmp(&val))
+    match order{
+        SortingOrder::Ascending => binary_search_impl(arr, |ref t| val.cmp(&t)),
+        SortingOrder::Descending => binary_search_impl(arr, |ref t| t.cmp(&val)),
+    }
+
 }
+
+
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use super::SortingOrder::*;
 
     #[test]
     fn asc_empty() {
         let arr: [i32; 0] = [];
-        assert!(binary_search_asc(&arr, &7).is_none());
+        assert!(binary_search(&arr, &7, Ascending).is_none());
     }
 
     #[test]
     fn asc_one() {
         let arr = [5];
-        assert!(binary_search_asc(&arr, &7).is_none());
+        assert!(binary_search(&arr, &7, Ascending).is_none());
     }
 
     #[test]
     fn asc_found() {
         let arr = [5, 7, 8, 12, 22, 33];
-        assert_eq!(binary_search_asc(&arr, &12), Some(3));
+        assert_eq!(binary_search(&arr, &12, Ascending), Some(3));
     }
     #[test]
     fn asc_too_small() {
         let arr = [5, 7, 8, 12, 22, 33];
-        assert_eq!(binary_search_asc(&arr, &3), None);
+        assert_eq!(binary_search(&arr, &3, Ascending), None);
     }
 
     #[test]
     fn asc_not_found() {
         let arr = [5, 7, 8, 12, 22, 33];
-        assert_eq!(binary_search_asc(&arr, &13), None);
+        assert_eq!(binary_search(&arr, &13, Ascending), None);
     }
 
     #[test]
     fn desc_empty() {
         let arr: [i32; 0] = [];
-        assert!(binary_search_desc(&arr, &7).is_none());
+        assert!(binary_search(&arr, &7, Descending).is_none());
     }
 
     #[test]
     fn desc_one() {
         let arr = [5];
-        assert!(binary_search_desc(&arr, &7).is_none());
+        assert!(binary_search(&arr, &7, Descending).is_none());
     }
 
     #[test]
     fn desc_found() {
         let arr = [44, 33, 22, 9, 7, 4, 2, 1];
-        assert_eq!(binary_search_desc(&arr, &2), Some(6));
+        assert_eq!(binary_search(&arr, &2, Descending), Some(6));
     }
 
     #[test]
     fn desc_not_found() {
         let arr = [44, 33, 22, 9, 7, 4, 2, 1];
-        assert_eq!(binary_search_asc(&arr, &66), None);
+        assert_eq!(binary_search(&arr, &66, Descending), None);
     }
+    /*
+    #[test]
+    fn first_empty() {
+        let arr: [i32; 0] = [];
+        assert_eq!(binary_search_first(&arr, |&e| true), None);
+    }
+
+    #[test]
+    fn first_single_found_greater() {
+        let arr = [4];
+        assert_eq!(binary_search_first(&arr, |&e| e >=4), Some(0));
+    }
+
+    #[test]
+    fn first_single_found_less() {
+        let arr = [4];
+        assert_eq!(binary_search_first(&arr, |&e| e <=4), Some(0));
+    }
+
+    #[test]
+    fn first_single_too_small() {
+        let arr = [4];
+        assert_eq!(binary_search_first(&arr, |&e| e >4), None);
+    }
+
+    #[test]
+    fn first_single_too_big() {
+        let arr = [4];
+        assert_eq!(binary_search_first(&arr, |&e| e <4), None);
+    }
+
+    #[test]
+    fn first() {
+        let arr = [0,1,2,3,4,5,6];
+        //assert_eq!(binary_search_first(&arr, |&e| e <4), Some(3));
+        assert_eq!(binary_search_first(&arr, |&e| e <=4), Some(4));
+        assert_eq!(binary_search_first(&arr, |&e| e >4), Some(5));
+        assert_eq!(binary_search_first(&arr, |&e| e >6), None);
+    }
+    */
 }

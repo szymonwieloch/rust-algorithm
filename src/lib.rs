@@ -41,3 +41,4 @@ pub mod sort;
 pub mod search;
 pub mod collections;
 pub mod math;
+pub mod utils;

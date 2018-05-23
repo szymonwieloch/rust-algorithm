@@ -1,20 +1,8 @@
-/*!
-Effectively sorts an array that contains a small number of unique elements.
-
-**More:** <https://en.wikipedia.org/wiki/Counting_sort>
-
-# Complexity
-
-- Processing complexity: O(n + k*log(k))
-- Memory complexity: O(k)
-
-where k - number of unique elements in the provided slice.
-*/
-
 use super::super::collections::FastCounter;
 use std::iter::FromIterator;
 use std::hash::Hash;
 use std::cmp::Ordering;
+use sort::SortingOrder;
 
 fn fill_arr<T>(arr: &mut [T], elems: Vec<(T, usize)>)
 where
@@ -48,7 +36,7 @@ where k - number of unique elements in the provided slice.
 
 ```
 extern crate algorithm;
-use algorithm::sort::counting_sort::counting_sort_by;
+use algorithm::sort::counting_sort_by;
 
 fn main() {
     let mut arr = ['a', 'b', 'c', 'a', 'b', 'c', 'c', 'c'];
@@ -81,70 +69,46 @@ where k - number of unique elements in the provided slice.
 
 ```
 extern crate algorithm;
-use algorithm::sort::counting_sort::counting_sort_asc;
+use algorithm::sort::counting_sort;
+use algorithm::sort::SortingOrder::*;
 
 fn main() {
-    let mut arr = ['a', 'b', 'c', 'a', 'b', 'c', 'c', 'c'];
-    counting_sort_asc(&mut arr);
+    let mut asc = ['a', 'b', 'c', 'a', 'b', 'c', 'c', 'c'];
+    counting_sort(&mut asc, Ascending);
     let expected = ['a', 'a', 'b', 'b', 'c', 'c', 'c', 'c'];
-    assert_eq!(arr, expected);
-}
-```
-*/
-pub fn counting_sort_asc<T>(arr: &mut [T])
-where
-    T: Hash + Ord + Eq + Clone,
-{
-    let counter: FastCounter<T> = FastCounter::from_iter(arr.iter().map(|ref e| e.clone()));
-    let mut elems: Vec<(T, usize)> = Vec::from_iter(counter.into_iter());
-    elems.sort_unstable();
-    fill_arr(arr, elems);
-}
+    assert_eq!(asc, expected);
 
-/**
-Sorts elements using counting sort in the descending order.
-
-**More:** <https://en.wikipedia.org/wiki/Counting_sort>
-
-# Complexity
-
-- Processing complexity: O(n + k*log(k))
-- Memory complexity: O(k)
-
-where k - number of unique elements in the provided slice.
-
-# Example
-
-```
-extern crate algorithm;
-use algorithm::sort::counting_sort::counting_sort_desc;
-
-fn main() {
-    let mut arr = ['c','a', 'b', 'c', 'd', 'a', 'b', 'c', 'c', 'c'];
-    counting_sort_desc(&mut arr);
+    let mut desc = ['c','a', 'b', 'c', 'd', 'a', 'b', 'c', 'c', 'c'];
+    counting_sort(&mut desc, Descending);
     let expected = ['d', 'c', 'c', 'c', 'c', 'c', 'b', 'b', 'a', 'a'];
-    assert_eq!(arr, expected);
+    assert_eq!(desc, expected);
 }
 ```
 */
-pub fn counting_sort_desc<T>(arr: &mut [T])
+pub fn counting_sort<T>(arr: &mut [T], order: SortingOrder)
 where
     T: Hash + Ord + Eq + Clone,
 {
     let counter: FastCounter<T> = FastCounter::from_iter(arr.iter().map(|ref e| e.clone()));
     let mut elems: Vec<(T, usize)> = Vec::from_iter(counter.into_iter());
-    elems.sort_unstable_by(|a, b| b.cmp(a));
+    match order{
+        SortingOrder::Ascending => elems.sort_unstable(),
+        SortingOrder::Descending => elems.sort_unstable_by(|ref a, ref b| b.cmp(&a))
+    };
     fill_arr(arr, elems);
 }
+
+
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use super::SortingOrder::*;
 
     #[test]
     fn asc() {
         let mut arr = ['a', 'b', 'c', 'a', 'b', 'c', 'c', 'c'];
-        counting_sort_asc(&mut arr);
+        counting_sort(&mut arr, Ascending);
         let expected = ['a', 'a', 'b', 'b', 'c', 'c', 'c', 'c'];
         assert_eq!(arr, expected);
     }
@@ -152,7 +116,7 @@ mod tests {
     #[test]
     fn desc() {
         let mut arr = ['c', 'a', 'b', 'c', 'd', 'a', 'b', 'c', 'c', 'c'];
-        counting_sort_desc(&mut arr);
+        counting_sort(&mut arr, Descending);
         let expected = ['d', 'c', 'c', 'c', 'c', 'c', 'b', 'b', 'a', 'a'];
         assert_eq!(arr, expected);
     }
