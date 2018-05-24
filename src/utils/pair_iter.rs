@@ -32,6 +32,23 @@ pub struct PairIterator<T, I> where T: Copy , I: Iterator<Item=T> {
     prev: T
 }
 
+impl <T, I> PairIterator<T, I> where T: Copy , I: Iterator<Item=T> {
+    pub fn new<J>(iter: J) -> Self where J: IntoIterator<Item=T, IntoIter=I>{
+        From::from(iter)
+    }
+
+    pub fn try_new<J>(iter: J) -> Option<Self> where J: IntoIterator<Item=T, IntoIter=I>{
+        let mut iter = iter.into_iter();
+        let prev = match iter.next() {
+            Some(val) => val,
+            None => return None
+        };
+        Some(Self{
+            iter, prev
+        })
+    }
+}
+
 impl<T, I> Iterator for  PairIterator<T, I> where T: Copy , I: Iterator<Item=T> {
     type Item = (T, T);
 
@@ -61,6 +78,21 @@ impl<T, I, J> From<J> for PairIterator<T, I>
         }
     }
 }
+/*
+impl<T, I> From<I> for PairIterator<T, I>
+    where T: Copy , I: Iterator<Item=T>
+{
+    fn from(mut iter: I) -> Self {
+        let prev = match iter.next() {
+            Some(val) => val,
+            None => unsafe{uninitialized()} //this is safe - prev won't be used anyway
+        };
+        Self{
+            iter, prev
+        }
+    }
+}
+*/
 
 #[cfg(test)]
 mod tests {

@@ -24,7 +24,7 @@ fn main() {
 }
 ```
 */
-pub fn first_unordered_by<'a, I, T, F>(iter: I, mut is_unordered: F) -> Option<usize>
+pub fn first_unordered_by<I, T, F>(iter: I, mut is_unordered: F) -> Option<usize>
 where
     I: IntoIterator<Item = T>,
     F: FnMut(T, T) -> bool,

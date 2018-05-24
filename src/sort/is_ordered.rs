@@ -24,11 +24,11 @@ fn main() {
 }
 ```
 */
-pub fn is_ordered_by<'a, I, T, F>(iter: I, mut is_ordered: F) -> bool
+pub fn is_ordered_by<I, T, F>(iter: I, mut is_ordered: F) -> bool
 where
-    I: IntoIterator<Item = &'a T>,
-    T: 'a,
-    F: FnMut(&T, &T) -> bool,
+    I: IntoIterator<Item = T>,
+    T: Copy,
+    F: FnMut(T, T) -> bool,
 {
     let mut iter = PairIterator::from(iter.into_iter());
     iter.all(|(a,b)| is_ordered(a, b))
@@ -70,10 +70,10 @@ fn main() {
 }
 ```
 */
-pub fn is_ordered<'a, I, T>(iter: I, order: Order) -> bool
+pub fn is_ordered<I, T>(iter: I, order: Order) -> bool
 where
-    I: IntoIterator<Item = &'a T>,
-    T: 'a + PartialOrd,
+    I: IntoIterator<Item = T>,
+    T: Copy + PartialOrd,
 {
    let mut iter = PairIterator::from(iter.into_iter());
     match order{
@@ -227,5 +227,12 @@ mod tests {
     fn inf_neg() {
         let arr = [::std::f64::NEG_INFINITY, 1.0, 2.0];
         assert!(is_ordered(&arr, Increasing))
+    }
+
+    #[test]
+    fn strings() {
+        let arr = ["a", "b", "c", "c", "d"];
+        assert!(!is_ordered(&arr, Increasing));
+        assert!(is_ordered(&arr, NotDecreasing));
     }
 }
