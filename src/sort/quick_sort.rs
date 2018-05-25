@@ -1,6 +1,4 @@
 use sort::{shuffle, SortingOrder};
-use std::clone::Clone;
-use std::mem::drop;
 
 #[inline(always)]
 fn partition<T, F>(arr: &mut [T], mut cmp: F) -> usize
