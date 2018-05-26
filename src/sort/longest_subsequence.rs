@@ -1,12 +1,15 @@
-use std::iter::repeat;
-use std::iter::FromIterator;
 use search::binary_first_by;
+
+fn is_ordered<'a, T>(a: &'a T, b: &'a T) -> bool where T: Ord {
+    a<b
+}
 
 fn longest_subsequence<T>(arr: &[T]) -> Vec<usize>
     where
         T: Ord,
 {
     //adapted from https://codereview.stackexchange.com/questions/187337/longest-increasing-subsequence-algorithm
+
     let mut result = Vec::new();
 
     //if arr is empty, then the result is too
@@ -26,40 +29,23 @@ fn longest_subsequence<T>(arr: &[T]) -> Vec<usize>
     for i in 1..arr.len() {
         // If the next item is greater than the last item of the current longest subsequence,
         // push its index at the end of the result and continue.
-        if arr[*result.last().unwrap()] < arr[i] {
+        if is_ordered(&arr[*result.last().unwrap()], &arr[i]) {
             previous_chain[i] = *result.last().unwrap();
             result.push(i);
             continue;
         }
 
-        // Perform a binary search to find the index of an item in `result` to overwrite.
-        // We want to overwrite an index that refers to the smallest item that is larger than `items[i]`.
+        // We want to overwrite an index that refers to the smallest item that is larger than arr[i].
         // If there is no such item, then we do nothing.
-        let comparator = |&result_index| {
-            use std::cmp::Ordering;
-
-            // We don't return Ordering::Equal when we find an equal value,
-            // because we want to find the index of the first equal value.
-            if arr[result_index] < arr[i]{
-                Ordering::Less
-            } else {
-                Ordering::Greater
-            }
-        };
-
-        let next_element_index = match result.binary_search_by(comparator) {
-            Ok(index) | Err(index) => index,
-        };
-
-        if arr[i] < arr[result[next_element_index]] {
-            if next_element_index > 0 {
+        if let Some(next_element_index) = binary_first_by(&result, |a |  is_ordered(&arr[i], &arr[*a]) ) {
+            if next_element_index>0 {
                 previous_chain[i] = result[next_element_index - 1];
             }
-
             result[next_element_index] = i;
         }
-    }
 
+
+    }
     // The last item in `result` is correct,
     // but we might have started overwriting earlier items
     // with what could have been a longer subsequence.
@@ -74,22 +60,7 @@ fn longest_subsequence<T>(arr: &[T]) -> Vec<usize>
     result
 }
 
-pub fn longest_subsequence_by<T, F>(arr: & [T], mut is_ordered: F) -> usize
-    where F: FnMut(&T, &T) -> bool
-{
-    let mut lis: Vec<usize> = Vec::from_iter(repeat(1 as usize).take(arr.len()));
-    for i in 1..arr.len(){
-        for j in 0..i {
-            if lis[i] <= lis[j] && is_ordered(&arr[j], &arr[i]) {
-                lis[i] = lis[j] + 1;
-            }
-        }
-    }
-    match lis.iter().max(){
-        Option::None => 0,
-        Option::Some(m) => *m
-    }
-}
+
 
 #[cfg(test)]
 mod tests {
