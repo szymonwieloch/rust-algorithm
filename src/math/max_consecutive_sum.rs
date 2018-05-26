@@ -18,7 +18,7 @@ If no positive consecutive sum is found, function returns T::default()( usually 
 
 ```
 extern crate algorithm;
-use algorithm::math::max_consecutive_sum::max_consecutive_sum;
+use algorithm::math::max_consecutive_sum;
 
 fn main() {
     let arr = [2, -5, 6, 8, 3, -9, 2, 3];
@@ -62,7 +62,7 @@ If no positive consecutive sum is found, function returns (T::default(), 0, 0) )
 
 ```
 extern crate algorithm;
-use algorithm::math::max_consecutive_sum::max_consecutive_sum_idx;
+use algorithm::math::max_consecutive_sum_idx;
 
 fn main() {
     let arr = [2, -5, 6, 8, 3, -9, 2, 3];

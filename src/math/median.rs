@@ -29,7 +29,7 @@ during processing.
 
 ```
 extern crate algorithm;
-use algorithm::math::median::median;
+use algorithm::math::median;
 
 fn main(){
     let mut odd = [9, 2, 7, 3, 5, 4, 1, 6, 8 ];
@@ -41,7 +41,7 @@ fn main(){
 */
 pub fn median<T>(arr: &mut [T]) -> T
 where
-    T: Clone + PartialOrd,
+    T: Clone + Ord,
 {
     let len = arr.len();
     check_len(len);
@@ -74,7 +74,7 @@ slower than the normal version.
 
 ```
 extern crate algorithm;
-use algorithm::math::median::median_rand;
+use algorithm::math::median_rand;
 
 fn main(){
     let mut odd = [9, 2, 7, 3, 5, 4, 1, 6, 8 ];
@@ -86,7 +86,7 @@ fn main(){
 */
 pub fn median_rand<T>(arr: &mut [T]) -> T
 where
-    T: Clone + PartialOrd,
+    T: Clone + Ord,
 {
     let len = arr.len();
     check_len(len);
@@ -114,7 +114,7 @@ during processing.
 
 ```
 extern crate algorithm;
-use algorithm::math::median::median_avg;
+use algorithm::math::median_avg;
 
 fn main(){
     let mut odd = [9, 2, 7, 3, 5, 4, 1, 6, 8];
@@ -156,7 +156,7 @@ slower than the normal version.
 
 ```
 extern crate algorithm;
-use algorithm::math::median::median_avg_rand;
+use algorithm::math::median_avg_rand;
 
 fn main(){
     let mut odd = [9, 2, 7, 3, 5, 4, 1, 6, 8];

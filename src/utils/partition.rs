@@ -36,3 +36,40 @@ pub fn partition_rand<T, F>(arr: &mut [T], mut is_ordered: F) -> usize
     arr.swap(store_idx, last_idx);
     store_idx
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn partition_simple() {
+        let mut arr = [9, 4, 8, 3, 7];
+        let idx = partition(&mut arr, |a,b| a<b);
+        assert_eq!(arr, [4, 3, 7, 9, 8]);
+        assert_eq!(idx, 2)
+    }
+
+    #[test]
+    fn partition_complex() {
+        let mut arr = [8, 4, 1, 2, 8, 9, 4, 6, 6, 5];
+        let idx = partition(&mut arr, |a,b| a<b);
+        assert_eq!(arr, [4, 1, 2, 4, 5, 9, 8, 6, 6, 8]);
+        assert_eq!(idx, 4)
+    }
+
+    #[test]
+    fn partition_first() {
+        let mut arr = [6, 5, 8, 1];
+        let idx = partition(&mut arr, |a,b| a<b);
+        assert_eq!(arr, [1, 5, 8, 6]);
+        assert_eq!(idx, 0)
+    }
+
+    #[test]
+    fn partition_last() {
+        let mut arr = [3, 4, 8, 3, 9];
+        let idx = partition(&mut arr, |a,b| a<b);
+        assert_eq!(arr, [3, 4, 8, 3, 9]);
+        assert_eq!(idx, 4)
+    }
+}
