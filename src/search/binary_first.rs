@@ -67,7 +67,7 @@ fn main(){
 }
 ```
 */
-pub fn binary_first_by<'a, T, F>(arr: &'a [T], mut to_left: F) -> Option<usize>
+pub fn binary_first_by<'a, T, F>(arr: &'a [T], to_left: F) -> Option<usize>
 where
 F: FnMut(&'a T) -> bool
 {

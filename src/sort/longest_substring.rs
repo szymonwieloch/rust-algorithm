@@ -38,7 +38,7 @@ fn longest_ordered_substring_impl<T, I, F>(mut iter: I, mut is_ordered: F) -> Ve
         I: Iterator<Item=T>,
         F: FnMut(&T, &T) -> bool
 {
-    let mut prev = match iter.next() {
+    let prev = match iter.next() {
         None => return Vec::new(),
         Some(v) => v
     };
