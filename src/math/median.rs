@@ -1,16 +1,4 @@
-/*!
-Calculates median of the slice.
-
-**More:** <https://en.wikipedia.org/wiki/Median>
-
-# Complexity
-
-- Average processing complexity: O(n)
-- Worst processing complexity: O(n**2)
-- Memory complexity: 0(1)
-*/
-
-use super::super::search::quick_select::{quick_select, quick_select_rand};
+use super::super::search::{quick_select, quick_select_rand};
 use std::ops::{Add, Div};
 
 #[inline(always)]
@@ -63,10 +51,38 @@ where
 }
 
 /**
-    Calculates median using the randomized quick select algorithm.
+Calculates median using the randomized quick select algorithm.
 
-    This is a version of ```median()``` function that uses randomized version of quick select.
-    It is safer but slower.
+If the array has an odd number of elements, the middle element is returned.
+If the array has an even number of elements, the greater one of the middle two is returned.
+
+The provided mutable slice is used for calculations and its elements are rearranged
+during processing.
+
+This function uses randomized version of the quick select algorithms. Is is safer buf on average
+slower than the normal version.
+
+**More:** <https://en.wikipedia.org/wiki/Median>
+
+# Complexity
+
+- Average processing complexity: O(n)
+- Worst processing complexity: O(n**2)
+- Memory complexity: 0(1)
+
+# Example
+
+```
+extern crate algorithm;
+use algorithm::math::median::median_rand;
+
+fn main(){
+    let mut odd = [9, 2, 7, 3, 5, 4, 1, 6, 8 ];
+    assert_eq!(median_rand(&mut odd), 5);
+    let mut even = [9, 2, 7, 3, 5, 4, 1, 6, 8, 10 ];
+    assert_eq!(median_rand(&mut even), 6);
+}
+```
 */
 pub fn median_rand<T>(arr: &mut [T]) -> T
 where
@@ -117,10 +133,38 @@ where
 
 
 /**
-    Calculates median using the randomized quick select algorithm.
+Calculates median using the randomized quick select algorithm.
 
-    This is a version of ```median_avg()``` function that uses randomized version of quick select.
-    It is safer but slower.
+If the array has an odd number of elements, the middle element is returned.
+If the array has an even number of elements, average of the middle two elements is returned.
+
+The provided mutable slice is used for calculations and its elements are rearranged
+during processing.
+
+This function uses randomized version of the quick select algorithms. Is is safer buf on average
+slower than the normal version.
+
+**More:** <https://en.wikipedia.org/wiki/Median>
+
+# Complexity
+
+- Average processing complexity: O(n)
+- Worst processing complexity: O(n**2)
+- Memory complexity: 0(1)
+
+# Example
+
+```
+extern crate algorithm;
+use algorithm::math::median::median_avg_rand;
+
+fn main(){
+    let mut odd = [9, 2, 7, 3, 5, 4, 1, 6, 8];
+    assert_eq!(median_avg_rand(&mut odd), 5);
+    let mut even = [9, 2, 7, 3, 4, 1, 6, 8, 10, 0];
+    assert_eq!(median_avg_rand(&mut even), 5);
+}
+```
 */
 pub fn median_avg_rand<T>(arr: &mut [T]) -> T
 where

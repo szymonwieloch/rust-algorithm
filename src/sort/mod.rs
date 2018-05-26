@@ -1,12 +1,12 @@
 /*!
-Sorting and related algorithms.
+Sorting and order related algorithms.
 */
 
 mod is_ordered;
 mod first_unordered;
 mod counting_sort;
 mod longest_substring;
-pub mod longest_subsequence;
+mod longest_subsequence;
 mod order;
 mod shuffle;
 mod quick_sort;
@@ -18,6 +18,7 @@ pub use self::is_ordered::{is_ordered, is_ordered_by};
 pub use self::longest_substring::{longest_ordered_substring_idx, longest_ordered_substring_idx_by, longest_ordered_substring, longest_ordered_substring_by};
 pub use self::shuffle::shuffle;
 pub use self::quick_sort::{quick_sort_by, quick_sort, quick_sort_rand_by, quick_sort_rand};
+pub use self::longest_subsequence::{longest_ordered_subsequence, longest_ordered_subsequence_by};
 
 
 

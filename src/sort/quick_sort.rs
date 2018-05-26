@@ -1,22 +1,5 @@
 use sort::{shuffle, SortingOrder};
-
-#[inline(always)]
-fn partition<T, F>(arr: &mut [T], mut cmp: F) -> usize
-    where
-        F: FnMut(&T, &T) -> bool
-{
-    //use the last element for comparison
-    let last_idx = arr.len() - 1;
-    let mut store_idx = 0;
-    for i in 0..last_idx {
-        if cmp(unsafe { arr.get_unchecked(i) },  unsafe { arr.get_unchecked(last_idx) }) {
-            arr.swap(store_idx, i);
-            store_idx += 1;
-        }
-    }
-    arr.swap(store_idx, last_idx);
-    store_idx
-}
+use utils::partition;
 
 fn quick_sort_impl<T, F>(arr: &mut [T], cmp: F)
     where

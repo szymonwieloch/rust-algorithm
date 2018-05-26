@@ -1,12 +1,75 @@
 use search::binary_first_by;
+use sort::Order;
 
-fn is_ordered<'a, T>(a: &'a T, b: &'a T) -> bool where T: Ord {
-    a<b
+/**
+Find indexes of the longest ordered subsequence in the slice using custom comparator.
+
+**More:** <https://en.wikipedia.org/wiki/Longest_increasing_subsequence>
+
+# Complexity
+- Processing complexity: O(n*log(n))
+- Memory complexity: O(n)
+
+# Example
+```
+extern crate algorithm;
+use algorithm::sort::longest_ordered_subsequence_by;
+
+fn main(){
+     let arr  = [3,4,-1,5,8,2,3,12,7,9,10];
+     //the longest increasing subsequence is [-1,2,3,7,9,10]
+     //the function returns indexes:
+     assert_eq!(longest_ordered_subsequence_by(&arr, |a,b| a<b), vec![2,5,6,8,9,10]);
+}
+```
+*/
+pub fn longest_ordered_subsequence_by<T, F>(arr: &[T], is_ordered:F) -> Vec<usize>
+    where
+        F: FnMut(&T, &T) -> bool
+{
+    longest_subsequence_impl(arr, is_ordered)
 }
 
-fn longest_subsequence<T>(arr: &[T]) -> Vec<usize>
+
+/**
+Find indexes of the longest ordered subsequence in the slice.
+
+**More:** <https://en.wikipedia.org/wiki/Longest_increasing_subsequence>
+
+# Complexity
+- Processing complexity: O(n*log(n))
+- Memory complexity: O(n)
+
+# Example
+```
+extern crate algorithm;
+use algorithm::sort::longest_ordered_subsequence;
+use algorithm::sort::Order::*;
+
+fn main(){
+     let arr  = [3,4,-1,5,8,2,3,12,7,9,10];
+     //the longest increasing subsequence is [-1,2,3,7,9,10]
+     //the function returns indexes:
+     assert_eq!(longest_ordered_subsequence(&arr, Increasing), vec![2,5,6,8,9,10]);
+}
+```
+*/
+pub fn longest_ordered_subsequence<T>(arr: &[T], order: Order) -> Vec<usize>
     where
         T: Ord,
+{
+    match order{
+        Order::Increasing => longest_subsequence_impl(arr, |a, b| a<b),
+        Order::Decreasing => longest_subsequence_impl(arr, |a, b| a>b),
+        Order::NotDecreasing => longest_subsequence_impl(arr, |a, b| a<=b),
+        Order::NotIncreasing => longest_subsequence_impl(arr, |a, b| a>=b),
+    }
+}
+
+#[inline(always)]
+fn longest_subsequence_impl<T, F>(arr: &[T], mut is_ordered:F) -> Vec<usize>
+    where
+        F: FnMut(&T, &T) -> bool
 {
     //adapted from https://codereview.stackexchange.com/questions/187337/longest-increasing-subsequence-algorithm
 
@@ -65,41 +128,90 @@ fn longest_subsequence<T>(arr: &[T]) -> Vec<usize>
 #[cfg(test)]
 mod tests {
     use super::*;
-    //use super::Order::*;
+    use super::Order::*;
 
     #[test]
-    fn empty() {
+    fn incr_empty() {
         let arr: [i32;0] = [];
-        assert!(longest_subsequence(&arr).is_empty());
+        assert!(longest_ordered_subsequence(&arr, Increasing).is_empty());
     }
 
     #[test]
-    fn single() {
+    fn incr_single() {
         let arr  = [5];
-        assert_eq!(longest_subsequence(&arr), vec![0]);
+        assert_eq!(longest_ordered_subsequence(&arr, Increasing), vec![0]);
     }
 
     #[test]
-    fn simple() {
+    fn incr_simple() {
         let arr  = [2,3,0,5];
-        assert_eq!(longest_subsequence(&arr), vec![0,1,3]);
+        assert_eq!(longest_ordered_subsequence(&arr, Increasing), vec![0, 1, 3]);
     }
 
     #[test]
-    fn advanced() {
+    fn incr_advanced() {
         let arr  = [3,4,-1,5,8,2,3,12,7,9,10];
-        assert_eq!(longest_subsequence(&arr), vec![2,5,6,8,9,10]);
+        assert_eq!(longest_ordered_subsequence(&arr, Increasing), vec![2, 5, 6, 8, 9, 10]);
     }
 
     #[test]
-    fn decr() {
+    fn incr_decr() {
         let arr  = [5,4,3,2,1];
-        assert_eq!(longest_subsequence(&arr), vec![4]);
+        assert_eq!(longest_ordered_subsequence(&arr, Increasing), vec![4]);
     }
 
     #[test]
-    fn first_mid_last() {
+    fn incr_first_mid_last() {
         let arr  = [5,10,6,3,7];
-        assert_eq!(longest_subsequence(&arr), vec![0,2,4]);
+        assert_eq!(longest_ordered_subsequence(&arr, Increasing), vec![0, 2, 4]);
     }
+
+    #[test]
+    fn decr_empty() {
+        let arr: [i32;0] = [];
+        assert!(longest_ordered_subsequence(&arr, Decreasing).is_empty());
+    }
+
+    #[test]
+    fn decr_single() {
+        let arr  = [5];
+        assert_eq!(longest_ordered_subsequence(&arr, Decreasing), vec![0]);
+    }
+
+    #[test]
+    fn decr_simple() {
+        let arr  = [5,4,6,3];
+        assert_eq!(longest_ordered_subsequence(&arr, Decreasing), vec![0, 1, 3]);
+    }
+
+    #[test]
+    fn decr_advanced() {
+        let arr  = [-3,-4,1,-5,-8,-2,-3,-12,-7,-9,-10];
+        assert_eq!(longest_ordered_subsequence(&arr, Decreasing), vec![2, 5, 6, 8, 9, 10]);
+    }
+
+    #[test]
+    fn decr_incr() {
+        let arr  = [1,2,3,4,5];
+        assert_eq!(longest_ordered_subsequence(&arr, Decreasing), vec![4]);
+    }
+
+    #[test]
+    fn decr_first_mid_last() {
+        let arr = [-5, -10, -6, -3, -7];
+        assert_eq!(longest_ordered_subsequence(&arr, Decreasing), vec![0, 2, 4]);
+    }
+
+    #[test]
+    fn nincr_simple() {
+        let arr  = [5,4,4,6,3];
+        assert_eq!(longest_ordered_subsequence(&arr, NotIncreasing), vec![0, 1, 2, 4]);
+    }
+
+    #[test]
+    fn nincr_advanced() {
+        let arr  = [10,6,9,2,7,4,1,3,3,1];
+        assert_eq!(longest_ordered_subsequence(&arr, NotIncreasing), vec![0, 2, 4, 5, 7, 8, 9]);
+    }
+
 }

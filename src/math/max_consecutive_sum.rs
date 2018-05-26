@@ -1,16 +1,3 @@
-/*!
-Calculates maximum sum of consecutive elements in the collection.
-
-This is an implementation of the Kadane's algorithm.
-**More:** <https://en.wikipedia.org/wiki/Maximum_subarray_problem>
-
-# Complexity
-
-- Processing complexity: O(n)
-- Memory complexity: O(1)
-
-*/
-
 use std::iter::IntoIterator;
 use std::ops::Add;
 
